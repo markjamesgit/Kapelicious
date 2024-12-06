@@ -1,52 +1,150 @@
-<?php
-
-// Start the session
-session_start();
-
-// Check if user is logged in
-if (isset($_SESSION["user_id"])){
-
-    // Connect to the database
-    $mysqli = require __DIR__ . "/backend/config/database.php";
-
-    // Query to get the user with the given user id
-    $sql = "SELECT * FROM users WHERE id = {$_SESSION["user_id"]}";
-
-    // Execute the query
-    $result = $mysqli->query($sql);
-
-    // Fetch the user
-    $user = $result->fetch_assoc();
-}
-?>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    <link rel="stylesheet" href="/Kapelicious/frontend/dist/style.css">
-
+    <title>Kapelicious</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.12.0/cdn.min.js" defer></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    "light-gray": "#F5F5F5",
+                    cream: "#F2EAD3",
+                    beige: "#DFD7BF",
+                    "dark-brown": "#3F2305",
+                },
+            }
+        }
+    }
+    </script>
 </head>
 
-<body>
-    <h1 class="text-5xl font-bold text-green-500">Home</h1>
+<body class="min-h-screen flex flex-col bg-light-gray">
+    <?php
+        // Include the header file
+        require __DIR__ . '/frontend/includes/header.php';
+    ?>
 
-    <?php 
-    // Check if user is logged in
-    if (isset($user)): ?>
-    <p>Hello <?= htmlspecialchars($user["name"]) ?></p>
+    <!-- Main Content -->
+    <div class="flex-grow container mx-auto max-w-full">
 
-    <p><a href="./frontend/pages/php/logout.php">Log out</a></p>
-    <?php 
-    // If user is not logged in
-    else:  ?>
-    <p class="text-red-500"><a href="frontend/pages/php/login.php">Log in</a> or <a
-            href="frontend/pages/html/signup.html">Sign up</a>
-    </p>
+        <!-- Full-Screen Slideshow -->
+        <div class="hero-section max-w-full">
+            <section class="hero relative h-screen w-full overflow-hidden">
+                <div class="absolute inset-0">
+                    <div x-data="{ slideIndex: 0 }" x-init="setInterval(() => slideIndex = (slideIndex + 1) % 3, 3000)"
+                        class="relative w-full h-full">
+                        <div class="absolute inset-0 transition-opacity" x-show="slideIndex === 0"
+                            style="background-image: url('frontend/assets/image1.jpg'); background-size: cover; background-position: center;">
+                        </div>
+                        <div class="absolute inset-0 transition-opacity" x-show="slideIndex === 1"
+                            style="background-image: url('frontend/assets/image2.avif'); background-size: cover; background-position: center;">
+                        </div>
+                        <div class="absolute inset-0 transition-opacity" x-show="slideIndex === 2"
+                            style="background-image: url('frontend/assets/image3.jpg'); background-size: cover; background-position: center;">
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+                    <h2 class="text-5xl font-extrabold text-white text-center shadow-md">Welcome to Kapelicious!</h2>
+                </div>
+            </section>
+        </div>
+    </div>
 
-    <?php endif; ?>
+    <!-- About Us -->
+    <div class="about-section py-20">
+        <section class="about max-w-7xl mx-auto px-4 lg:px-8">
+            <div class="flex flex-col lg:flex-row items-center lg:gap-12">
+                <img src="frontend/assets/Kapelicious-logo2.png" alt="About Us" class="w-full lg:w-1/2 ">
+                <div class="mt-8 lg:mt-0 text-center lg:text-left">
+                    <h3 class="text-5xl font-bold text-dark-brown mb-4">About Us</h3>
+                    <p class="text-lg text-dark-brown leading-relaxed max-w-2xl mx-auto">
+                        Kapelicious is more than just a platform. We are committed to ensuring timely and effective
+                        rescue operations. Our mission is to simplify and manage rescues while offering tools for
+                        seamless
+                        operations. Join us in making a difference!
+                    </p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Gallery -->
+    <div class="gallery-section bg-dark-brown py-20">
+        <section class="gallery max-w-7xl mx-auto px-4 lg:px-8">
+            <h3 class="text-3xl font-semibold text-cream mb-8 text-center">Gallery</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                <img src="frontend/assets/Kapelicious-logo2.png" alt="Gallery Image 1" class="rounded-lg">
+                <img src="frontend/assets/Kapelicious-logo.png" alt="Gallery Image 2" class="rounded-lg ">
+                <img src="frontend/assets/Kapelicious-logo2.png" alt="Gallery Image 3" class="rounded-lg">
+                <img src="frontend/assets/Kapelicious-logo.png" alt="Gallery Image 4" class="rounded-lg">
+                <img src="frontend/assets/Kapelicious-logo2.png" alt="Gallery Image 5" class="rounded-lg">
+                <img src="frontend/assets/Kapelicious-logo.png" alt="Gallery Image 6" class="rounded-lg">
+            </div>
+        </section>
+    </div>
+
+    <!-- Popular Menus -->
+    <div class="menus-section bg-white py-20">
+        <section class="popular-menus max-w-7xl mx-auto px-4 lg:px-8">
+            <h3 class="text-3xl font-semibold text-dark-brown mb-8 text-center">Popular Menus</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12">
+                <div class="menu-item bg-white rounded-lg">
+                    <img src="frontend/assets/Kapelicious-logo.png" alt="Coffee 1" class="w-full rounded-md mb-4">
+                    <h4 class="text-xl font-bold text-dark-brown">Caramel Latte</h4>
+                    <p class="text-gray-700">A perfect blend of caramel and espresso topped with creamy foam.</p>
+                </div>
+                <div class="menu-item bg-white rounded-lg ">
+                    <img src="frontend/assets/Kapelicious-logo.png" alt="Pastry 1" class="w-full rounded-md mb-4">
+                    <h4 class="text-xl font-bold text-dark-brown">Chocolate Croissant</h4>
+                    <p class="text-gray-700">Flaky, buttery pastry filled with rich chocolate.</p>
+                </div>
+                <div class="menu-item bg-white rounded-lg ">
+                    <img src="frontend/assets/Kapelicious-logo.png" alt="Coffee 2" class="w-full rounded-md mb-4">
+                    <h4 class="text-xl font-bold text-dark-brown">Espresso Macchiato</h4>
+                    <p class="text-gray-700">Strong espresso marked with a dollop of steamed milk.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Services -->
+    <div class="services-section bg-white py-20">
+        <section class="services max-w-7xl mx-auto px-4 lg:px-8">
+            <h3 class="text-3xl font-semibold text-dark-brown mb-8 text-center">Our Coffee Services</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12">
+                <div class="service-item bg-white rounded-lg p-6 flex items-center space-x-6">
+                    <div class="icon text-gray-700 text-4xl"><i class="fas fa-mug-hot"></i></div>
+                    <div>
+                        <h4 class="font-semibold text-dark-brown text-xl">Specialty Coffee</h4>
+                        <p class="text-gray-700">Rich and flavorful coffee crafted with love and care.</p>
+                    </div>
+                </div>
+                <div class="service-item bg-white rounded-lg p-6 flex items-center space-x-6">
+                    <div class="icon text-gray-700 text-4xl"><i class="fas fa-bread-slice"></i></div>
+                    <div>
+                        <h4 class="font-semibold text-dark-brown text-xl">Fresh Baked Pastries</h4>
+                        <p class="text-gray-700">Delicious treats baked fresh in-house every day.</p>
+                    </div>
+                </div>
+                <div class="service-item bg-white rounded-lg p-6 flex items-center space-x-6">
+                    <div class="icon text-gray-700 text-4xl"><i class="fas fa-coffee"></i></div>
+                    <div>
+                        <h4 class="font-semibold text-dark-brown text-xl">Coffee Blending</h4>
+                        <p class="text-gray-700">Customize your own coffee blend with our expert roasters.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Include Footer -->
+    <?php require __DIR__ . '/frontend/includes/footer.php'; ?>
 </body>
 
 </html>
