@@ -1,87 +1,50 @@
 <?php
+// Get the email and new passwords from the form
+$email = $_POST["email"];
+$new_password = $_POST["new_password"];
+$confirm_password = $_POST["confirm_password"];
 
-// Get the token from the form
-$token = $_POST["token"];
+// Validate inputs
+if (empty($new_password) || empty($confirm_password)) {
+    die("Both password fields are required.");
+}
 
-// Calculate the hash of the token
-$token_hash = hash("sha256", $token);
+// Check if the passwords match
+if ($new_password !== $confirm_password) {
+    die("Passwords do not match.");
+}
 
-// Connect to the database
 $mysqli = require __DIR__ . "/../config/database.php";
 
-// Query to get the user with the given token
-$sql = "SELECT * FROM users
-        WHERE reset_token_hash = ?";
-
-// Prepare and execute the query
+$sql = "SELECT password_hash FROM users WHERE email = ?";
 $stmt = $mysqli->prepare($sql);
-
-// Bind the parameter to the query
-$stmt->bind_param("s", $token_hash);
-
-// Execute the query
+$stmt->bind_param("s", $email);
 $stmt->execute();
-
-// Get the result
 $result = $stmt->get_result();
-
-// Get the user
 $user = $result->fetch_assoc();
 
-// If user is not found, die
 if ($user === null) {
-    die("token not found");
+    die("User not found.");
 }
 
-// If token has expired, die
-if (strtotime($user["reset_token_expires_at"]) <= time()) {
-    die("token has expired");
-}
+$old_password_hash = $user["password_hash"]; // Current password hash
 
-// Check if the old password and new password are the same
-if (password_verify($_POST["new_password"], $user["password_hash"])) {
-
-    // Redirect to the reset page with error message
-    header("Location: ../../frontend/pages/php/reset-password.php?token=" . urlencode($token) . "&error=same_password");
+// Check if the new password is the same as the old password
+if (password_verify($new_password, $old_password_hash)) {
+    // If the new password is the same as the old, redirect with an error message
+    header("Location: /Kapelicious/frontend/pages/php/reset-password.php?email=" . urlencode($email) . "&error=password_match");
     exit();
 }
 
-// Check if the new password is at least 8 characters
-if(strlen($_POST["new_password"]) < 8) {
-    die("Password must be at least 8 characters");
-}
-
-// Check if the new password contains at least one letter
-if (!preg_match("/[a-z]/i", $_POST["new_password"])) {
-    die("Password must contain at least one letter");
-}
-
-// Check if the new password contains at least one number
-if (!preg_match("/[0-9]/", $_POST["new_password"])) {
-    die("Password must contain at least one number");
-}
-
-// Check if the new password matches the confirm password
-if ($_POST["new_password"] !== $_POST["confirm_password"]) {
-    die("Password must match");
-}
-
-
 // Hash the new password
-$password_hash = password_hash($_POST["new_password"], PASSWORD_DEFAULT);
+$new_password_hash = password_hash($new_password, PASSWORD_DEFAULT);
 
-// Update the user with the new password hash and reset the token
-$sql = "UPDATE users SET password_hash = ?, reset_token_hash = NULL, reset_token_expires_at = NULL WHERE id = ?";
-
-// Prepare and execute the query
+// Update the user's password in the database
+$sql = "UPDATE users SET password_hash = ? WHERE email = ?";
 $stmt = $mysqli->prepare($sql);
-
-// Bind the parameter to the query
-$stmt->bind_param("ss", $password_hash, $user["id"]);
-
-// Execute the query
+$stmt->bind_param("ss", $new_password_hash, $email);
 $stmt->execute();
 
-// Redirect to the login page
-header("Location: ../../frontend/pages/php/login.php");
+header("Location: /Kapelicious/frontend/pages/php/login.php");
+exit();
 ?>

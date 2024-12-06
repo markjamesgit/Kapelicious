@@ -39,7 +39,9 @@ $activation_token = bin2hex(random_bytes(16));
 // Hash the activation token
 $activation_token_hash = hash("sha256", $activation_token);
 
-// Get the database connection
+// Generate a 6-digit verification code
+$verification_code = rand(100000, 999999);
+
 $mysqli = require __DIR__ . "/../config/database.php";
 
 // Check if the email already exists in the database
@@ -70,16 +72,15 @@ if ($count > 0) {
 }
 
 // Insert the user into the database
-$sql = "INSERT INTO users (name, email, password_hash, account_activation_hash) VALUES (?, ?, ?, ?)";
+$sql = "INSERT INTO users (name, email, password_hash, verification_code, is_verified) VALUES (?, ?, ?, ?, 0)";
 $stmt = $mysqli->stmt_init();
 
-// Prepare the SQL statement
 if (!$stmt->prepare($sql)) {
     die("SQL error: " . $mysqli->error);
 }
 
 // Bind the parameters
-$stmt->bind_param("ssss", $_POST["name"], $email, $password_hash, $activation_token_hash);
+$stmt->bind_param("ssss", $_POST["name"], $email, $password_hash, $verification_code);
 
 // Execute the statement
 if ($stmt->execute()) {
@@ -91,30 +92,27 @@ if ($stmt->execute()) {
     $mail->addAddress($_POST["email"]);
     $mail->Subject = "Account Activation";
     $mail->Body = <<<END
+Thank you for signing up! Your verification code is: <b>$verification_code</b><br>
+Please enter this code on the verification page to activate your account.
+END;
 
-    Click <a href="http://localhost/Kapelicious/frontend/pages/php/activate-account.php?token=$activation_token">here</a> 
-    to activate your account.
 
-    END;
 
     try {
 
-        // Send the email
         $mail->send();
 
     } catch (Exception $e) {
 
-        // Catch any errors
         echo "Message could not be sent. Mailer error: {$mail->ErrorInfo}";
         exit;
 
     }
 
-    // Redirect to the success page
-    header("Location: ../../frontend/pages/html/signup-success.html");
+    header("Location: ../../frontend/pages/php/verify-account.php");
     exit;
 
 } else {
-    // Catch any errors
+
     die($mysqli->error . " " . $mysqli->errno);
 }

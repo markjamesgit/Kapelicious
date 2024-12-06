@@ -1,3 +1,21 @@
+<?php
+session_start();
+
+// Check if the user is logged in
+if (isset($_SESSION["user_id"])) {
+    // Connect to the database
+    $mysqli = require "C:/xampp/htdocs/Kapelicious/backend/config/database.php";
+
+    // Fetch user info from the database based on session user_id
+    $sql = "SELECT name FROM users WHERE id = ?";
+    $stmt = $mysqli->prepare($sql);
+    $stmt->bind_param("i", $_SESSION["user_id"]);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $user = $result->fetch_assoc();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -28,13 +46,13 @@
                 <?php 
                 // Check if user is logged in
                 if (isset($user)): ?>
-                <p class="text-sm font-semibold text-gray-200">Hello <?= htmlspecialchars($user["name"]) ?>!</p>
-                <a href="frontend/pages/php/logout.php" class="text-sm text-red-500 hover:text-red-700">Log out</a>
+                <p class="text-md font-semibold text-blue-500"><?= htmlspecialchars($user["name"]) ?></p>
+                <a href="frontend/pages/php/logout.php" class="text-md text-red-500 hover:text-red-700">Log out</a>
                 <?php 
                 // If user is not logged in
                 else:  ?>
                 <button onclick="window.location.href='frontend/pages/php/login.php'"
-                    class="bg-dark-brown py-1 px-6 rounded-full text-cream  hover:border-none cursor-pointer">Log
+                    class="bg-dark-brown py-1 px-6 rounded-full text-cream hover:border-none cursor-pointer">Log
                     in</button>
                 <?php endif; ?>
             </nav>

@@ -1,78 +1,56 @@
 <?php
+$email = $_GET["email"];
 
-// Get the token from the URL
-$token = $_GET["token"];
+$mysqli = require __DIR__ . "../../../../backend/config/database.php"; 
 
-// Calculate the hash of the token
-$token_hash = hash("sha256", $token);
-
-// Connect to the database
-$mysqli = require __DIR__ . "../../../../backend/config/database.php";
-
-// Query to check if the user with the given token exists
-$sql = "SELECT * FROM users
-        WHERE reset_token_hash = ?";
+// Query to get the user with the given email
+$sql = "SELECT * FROM users WHERE email = ?";
 
 // Prepare and execute the query
 $stmt = $mysqli->prepare($sql);
-
-// Bind the parameter to the query
-$stmt->bind_param("s", $token_hash);
-
-// Execute the query
+$stmt->bind_param("s", $email);
 $stmt->execute();
-
-// Get the result
 $result = $stmt->get_result();
-
-// Get the user
 $user = $result->fetch_assoc();
 
-// If user is not found, die
+// If user is not found, redirect or show an error
 if ($user === null) {
-    die("token not found");
+    die("User not found.");
 }
 
-// If token has expired, die
-if (strtotime($user["reset_token_expires_at"]) <= time()) {
-    die("token has expired");
-}
-
+$old_password_hash = $user["password_hash"]; 
 ?>
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Reset Password</title>
     <meta charset="UTF-8">
-    <script src="https://unpkg.com/just-validate@latest/dist/just-validate.production.min.js" defer></script>
-    <script src="../../javascript/validation.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Password</title>
 </head>
 
 <body>
-
     <h1>Reset Password</h1>
 
-    <!-- Add the error message if the old password and new password are the same -->
-    <?php if (isset($_GET['error']) && $_GET['error'] == 'same_password'): ?>
-    <p style="color: red;">New password cannot be the same as the old password.</p>
-    <?php endif; ?>
+    <?php
+    // Check if a session or GET variable is set for error messages (if the passwords match)
+    if (isset($_GET['error']) && $_GET['error'] == 'password_match') {
+        echo "<p style='color: red;'>New password cannot be the same as the old password.</p>";
+    }
+    ?>
 
     <form method="post" action="/Kapelicious/backend/functions/process-reset-password.php">
+        <input type="hidden" name="email" value="<?= htmlspecialchars($email) ?>">
 
-        <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
-
-        <label for=" new_password">New password</label>
-        <input type="password" id="new_password" name="new_password">
-
+        <label for="new_password">New password</label>
+        <input type="password" id="new_password" name="new_password" required>
 
         <label for="confirm_password">Confirm Password</label>
-        <input type="password" id="confirm_password" name="confirm_password">
+        <input type="password" id="confirm_password" name="confirm_password" required>
 
-
-        <button>Send</button>
+        <button type="submit">Submit</button>
     </form>
-
 </body>
 
 </html>

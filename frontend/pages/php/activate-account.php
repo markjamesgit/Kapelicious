@@ -1,19 +1,16 @@
 <?php
 
-// Get the token from the URL
 $token = $_GET["token"];
 
 // Calculate the hash of the token
 $token_hash = hash("sha256", $token);
 
-// Connect to the database
 $mysqli = require __DIR__ . "../../../../backend/config/database.php";
 
 // Query to get the user with the given token
 $sql = "SELECT * FROM users
         WHERE account_activation_hash = ?";
 
-// Prepare and execute the query
 $stmt = $mysqli->prepare($sql);
 
 $stmt->bind_param("s", $token_hash);

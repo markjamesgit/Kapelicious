@@ -1,71 +1,55 @@
 <?php
 
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 // Get the email from the form
-$email = $_POST["email"];
+$email = trim($_POST["email"] ?? '');
 
-// Generate a random token
-$token = bin2hex(random_bytes(16));
+// Validate that an email was provided
+if (empty($email)) {
+    die("No email provided.");
+}
 
-// Hash the token
-$token_hash = hash("sha256", $token);
+// Generate a random verification code
+$verification_code = rand(100000, 999999);
 
-// Set the expiration time to 30 minutes from now
-$expiry = date("Y-m-d H:i:s", time() + 60 * 30);
+// Set the expiration time to 10 minutes from now
+$expiry = date("Y-m-d H:i:s", time() + 60 * 10);
 
-// Connect to the database
 $mysqli = require __DIR__ . "/../config/database.php";
 
-// Prepare an SQL statement to update the user's record
 $sql = "UPDATE users
-        SET reset_token_hash = ?,
+        SET verification_code = ?,
             reset_token_expires_at = ?
         WHERE email = ?";
 
-// Prepare the statement
 $stmt = $mysqli->prepare($sql);
 
-// Bind the parameters to the statement
-$stmt->bind_param("sss", $token_hash, $expiry, $email);
-
-// Execute the statement
-$stmt->execute();
-
-// Check if any rows were affected
-if ($mysqli->affected_rows) {
-
-    // Create a new instance of the mailer class
-    $mail = require __DIR__ . "/mailer.php";
-
-    // Set the from address
-    $mail->setFrom("kapeliciouscoffeeshop@gmail.com");
-
-    // Set the recipient address
-    $mail->addAddress($email);
-
-    // Set the subject
-    $mail->Subject = "Password Reset";
-
-    // Set the body
-    $mail->Body = <<<END
-
-    Click <a href="http://localhost/Kapelicious/frontend/pages/php/reset-password.php?token=$token">here</a> 
-    to reset your password.
-
-    END;
-
-    try {
-
-        // Send the email
-        $mail->send();
-
-    } catch (Exception $e) {
-
-        // Catch any errors and display them
-        echo "Message could not be sent. Mailer error: {$mail->ErrorInfo}";
-
-    }
-
+if (!$stmt) {
+    die("Failed to prepare statement: " . $mysqli->error);
 }
 
-// Display a success message
-echo "Message sent, please check your inbox.";
+// Bind the parameters and execute the query
+$stmt->bind_param("sss", $verification_code, $expiry, $email);
+$stmt->execute();
+
+// Check if any rows were affected (i.e., email exists in the database)
+if ($stmt->affected_rows) {
+    // Send the email using the mailer
+    $mail = require __DIR__ . "/mailer.php";
+    $mail->setFrom("kapeliciouscoffeeshop@gmail.com");
+    $mail->addAddress($email);
+    $mail->Subject = "Password Reset Code";
+    $mail->Body = "Your password reset verification code is: <strong>$verification_code</strong>. This code will expire in 10 minutes.";
+
+    try {
+        $mail->send();
+        header("Location: ../../frontend/pages/php/verify-code.php?email=" . urlencode($email));
+    } catch (Exception $e) {
+        die("Error sending email: {$mail->ErrorInfo}");
+    }
+} else {
+    die("Email not found. Please check and try again.");
+}
+?>
