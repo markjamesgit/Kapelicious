@@ -45,7 +45,7 @@ if ($stmt->affected_rows) {
 
     try {
         $mail->send();
-        header("Location: ../../frontend/pages/php/verify-code.php?email=" . urlencode($email));
+        header("Location: ../../frontend/pages/php/verify-password.php?email=" . urlencode($email));
     } catch (Exception $e) {
         die("Error sending email: {$mail->ErrorInfo}");
     }

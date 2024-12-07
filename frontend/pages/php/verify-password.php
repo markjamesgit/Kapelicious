@@ -51,7 +51,7 @@ if (isset($user["reset_token_expires_at"]) && strtotime($user["reset_token_expir
 <body>
     <h1>Verify Your Code</h1>
 
-    <form action="/Kapelicious/backend/functions/process-verify-code.php" method="post">
+    <form action="/Kapelicious/backend/functions/process-verify-password.php" method="post">
         <input type="hidden" name="email" value="<?= htmlspecialchars($email) ?>">
         <label for="verification_code">Enter Verification Code</label>
         <input type="text" name="verification_code" id="verification_code" required>
