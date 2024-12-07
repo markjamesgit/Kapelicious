@@ -1,13 +1,15 @@
 <?php
 
+// Enable all errors for debugging
 error_reporting(E_ALL);
+// Display all errors for debugging
 ini_set('display_errors', 1);
 
+// Connect to the database
 $mysqli = require __DIR__ . "../../../../backend/config/database.php";
 
 // Get the email from the URL
 $email = trim($_GET['email'] ?? '');
-
 // Display the passed email
 if (empty($email)) {
     die("No email provided in the URL. Debugging: email is empty.");
@@ -16,21 +18,24 @@ if (empty($email)) {
 // Query to fetch the user with the given email
 $sql = "SELECT * FROM users WHERE email = ?";
 $stmt = $mysqli->prepare($sql);
-
+// Check if the query was successful
 if (!$stmt) {
     die("Failed to prepare statement: " . $mysqli->error);
 }
 
+// Bind the email parameter to the query
 $stmt->bind_param("s", $email);
+// Execute the query
 $stmt->execute();
+// Get the result of the query
 $result = $stmt->get_result();
+// Fetch the user from the result
 $user = $result->fetch_assoc();
 
 // Check if the user exists
 if ($user === null) {
     die("No user found with that email. Debugging: email passed = " . htmlspecialchars($email));
 }
-
 
 // Check if the reset token is expired
 if (isset($user["reset_token_expires_at"]) && strtotime($user["reset_token_expires_at"]) <= time()) {

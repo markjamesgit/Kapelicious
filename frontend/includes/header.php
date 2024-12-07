@@ -1,17 +1,28 @@
 <?php
+// Start the PHP session
 session_start();
 
-// Check if the user is logged in
+// Check if the user is logged in by checking if the session user_id is set
 if (isset($_SESSION["user_id"])) {
-    // Connect to the database
+    // Connect to the MySQL database using the require_once statement
     $mysqli = require "C:/xampp/htdocs/Kapelicious/backend/config/database.php";
 
-    // Fetch user info from the database based on session user_id
+    // Prepare the SQL statement to fetch user info from the database based on session user_id
     $sql = "SELECT name FROM users WHERE id = ?";
+
+    // Prepare the SQL statement for execution using the prepare method
     $stmt = $mysqli->prepare($sql);
+
+    // Bind the parameter(s) to the query using the bind_param method
     $stmt->bind_param("i", $_SESSION["user_id"]);
+
+    // Execute the query using the execute method
     $stmt->execute();
+
+    // Get the result of the query using the get_result method
     $result = $stmt->get_result();
+
+    // Fetch the user info from the result using the fetch_assoc method
     $user = $result->fetch_assoc();
 }
 ?>

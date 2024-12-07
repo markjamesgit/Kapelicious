@@ -3,42 +3,57 @@
 $is_invalid = false; 
 $activation_error = false;
 
+// Check if the request method is POST
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
+    // Connect to the database
     $mysqli = require __DIR__ . "../../../../backend/config/database.php"; 
 
+    // Prepare the SQL statement to select user by email
     $sql = "SELECT * FROM users WHERE email = ?";
     $stmt = $mysqli->prepare($sql);
+    // Bind the email parameter
     $stmt->bind_param("s", $_POST["email"]);
+    // Execute the query
     $stmt->execute();
+    // Get the result of the query
     $result = $stmt->get_result();
 
-    // Fetch the user
+    // Fetch the user from the result
     $user = $result->fetch_assoc();
 
+    // Check if user exists
     if ($user) {
         // Check if the account is verified
         if ($user["is_verified"] == 0) {
-            $activation_error = true; // Account not activated
+            // Set activation error flag
+            $activation_error = true;
         } else {
-            // Verify the password if the account is activated
+            // Verify the password
             if (password_verify($_POST["password"], $user["password_hash"])) {
 
-                // Start the session and regenerate the session ID
+                // Start a new session
                 session_start();
+                // Regenerate session ID for security
                 session_regenerate_id();
 
-                // Set the user ID in the session
+                // Store user ID in session
                 $_SESSION["user_id"] = $user["id"];
+                // Store user type in session
+                $_SESSION["user_type"] = $user["user_type"];  
 
-                // Redirect to the home page
-                header("Location: /Kapelicious/index.php");
+                // Redirect based on user type
+                if ($user["user_type"] == "admin") {
+                    header("Location: /Kapelicious/frontend/admin/dashboard.php");
+                } else {
+                    header("Location: /Kapelicious/index.php");
+                }
+                // Exit script after redirect
                 exit;
             }
         }
     }
-
-    // If login fails due to incorrect activation or password
+    // Set invalid flag if login fails
     $is_invalid = true;
 }
 ?>

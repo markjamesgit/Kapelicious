@@ -1,30 +1,29 @@
 <?php
 
-$mysqli = require __DIR__ . "../../../../backend/config/database.php";
+$mysqli = require __DIR__ . "../../../../backend/config/database.php"; // Connect to the database
 
 $error_message = null; // To store error messages
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $code = $_POST['verification_code'];
-
+if ($_SERVER['REQUEST_METHOD'] === 'POST') { // Check if the request is a POST
+    $code = $_POST['verification_code']; // Get the verification code from the form
     // Check if the verification code matches an unverified account
-    $stmt = $mysqli->prepare("SELECT email FROM users WHERE verification_code = ? AND is_verified = 0");
-    $stmt->bind_param("s", $code);
-    $stmt->execute();
-    $stmt->bind_result($email);
-    $stmt->fetch();
-    $stmt->close();
+    $stmt = $mysqli->prepare("SELECT email FROM users WHERE verification_code = ? AND is_verified = 0"); // Prepare the query
+    $stmt->bind_param("s", $code); // Bind the verification code to the query
+    $stmt->execute(); // Execute the query
+    $stmt->bind_result($email); // Bind the result of the query to $email
+    $stmt->fetch(); // Fetch the result
+    $stmt->close(); // Close the statement
 
-    if ($email) {
+    if ($email) { // Check if an email was found
         // Mark the account as verified
-        $stmt = $mysqli->prepare("UPDATE users SET is_verified = 1, verification_code = NULL WHERE verification_code = ?");
-        $stmt->bind_param("s", $code);
-        $stmt->execute();
+        $stmt = $mysqli->prepare("UPDATE users SET is_verified = 1, verification_code = NULL WHERE verification_code = ?"); // Prepare the query
+        $stmt->bind_param("s", $code); // Bind the verification code to the query
+        $stmt->execute(); // Execute the query
 
-        header("Location: /Kapelicious/frontend/pages/html/signup-success.html");
-        exit;
+        header("Location: /Kapelicious/frontend/pages/html/signup-success.html"); // Redirect to success page
+        exit; // Exit the script
     } else {
-        $error_message = "Invalid verification code!";
+        $error_message = "Invalid verification code!"; // Set the error message if the verification code is invalid
     }
 }
 ?>

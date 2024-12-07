@@ -1,16 +1,27 @@
 <?php
+// Get the email from the query string
 $email = $_GET["email"];
 
+// Connect to the database
 $mysqli = require __DIR__ . "../../../../backend/config/database.php"; 
 
-// Query to get the user with the given email
+// Prepare the query to select user by email
+// The query is parameterized to protect against SQL injection
 $sql = "SELECT * FROM users WHERE email = ?";
 
-// Prepare and execute the query
+// Prepare the statement for execution
 $stmt = $mysqli->prepare($sql);
+
+// Bind the email parameter to the query
 $stmt->bind_param("s", $email);
+
+// Execute the query
 $stmt->execute();
+
+// Get the result of the query as an associative array
 $result = $stmt->get_result();
+
+// Fetch the user from the result
 $user = $result->fetch_assoc();
 
 // If user is not found, redirect or show an error
@@ -18,6 +29,7 @@ if ($user === null) {
     die("User not found.");
 }
 
+// Get the current password hash from the user
 $old_password_hash = $user["password_hash"]; 
 ?>
 
