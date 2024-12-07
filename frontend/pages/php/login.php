@@ -68,61 +68,73 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 
-<body class="flex items-center justify-center min-h-screen bg-light-gray">
-    <div class="max-w-md w-full bg-cream p-8 rounded-lg shadow-lg">
-        <!-- Back Button -->
-        <button onclick="history.back()"
-            class="flex items-center mb-6 text-dark-brown text-sm font-medium hover:underline">
-            <i class="fas fa-arrow-left mr-2"></i> Back
-        </button>
+<body class="min-h-screen bg-gradient-to-b from-light-gray to-beige flex items-center justify-center">
+    <div class="max-w-4xl w-full flex bg-dark-brown rounded-lg shadow-lg overflow-hidden">
+        <!-- Left Side: Image -->
+        <div class="hidden md:flex w-1/2 bg-cover bg-center"
+            style="background-image: url('../../assets/login-bg.png');">
+        </div>
 
-        <!-- Title -->
-        <h1 class="text-3xl font-bold text-dark-brown mb-6 text-center">Welcome Back</h1>
-        <p class="text-center text-beige mb-4">Log in to access your account</p>
-
-        <!-- Alerts -->
-        <?php if ($is_invalid): ?>
-        <p class="text-red-600 mb-4 text-center font-medium">Invalid email or password.</p>
-        <?php endif; ?>
-        <?php if ($activation_error): ?>
-        <p class="text-red-600 mb-4 text-center font-medium">Your account has not been activated. Please check your
-            email
-            to verify your account.</p>
-        <?php endif; ?>
-
-        <!-- Form -->
-        <form method="post" class="space-y-6">
-            <!-- Email Field -->
-            <div class="relative flex items-center border border-beige rounded-md shadow-sm bg-white">
-                <i class="fas fa-envelope text-beige absolute left-3"></i>
-                <input type="email" name="email" id="email" value="<?= htmlspecialchars($_POST["email"] ?? "") ?>"
-                    required
-                    class="w-full pl-10 pr-3 py-2 bg-transparent text-dark-brown placeholder-beige focus:outline-none focus:ring-2 focus:ring-dark-brown focus:border-dark-brown rounded-md"
-                    placeholder="Enter your email" />
-            </div>
-
-            <!-- Password Field -->
-            <div class="relative flex items-center border border-beige rounded-md shadow-sm bg-white">
-                <i class="fas fa-lock text-beige absolute left-3"></i>
-                <input type="password" name="password" id="password" required
-                    class="w-full pl-10 pr-3 py-2 bg-transparent text-dark-brown placeholder-beige focus:outline-none focus:ring-2 focus:ring-dark-brown focus:border-dark-brown rounded-md"
-                    placeholder="Enter your password" />
-            </div>
-
-            <!-- Login Button -->
-            <button
-                class="w-full bg-dark-brown text-white py-3 rounded-md font-medium text-lg hover:bg-opacity-90 transition">
-                Log In
+        <!-- Right Side: Login Form -->
+        <div class="w-full md:w-1/2 p-8">
+            <!-- Back Button -->
+            <button onclick="history.back()"
+                class="flex items-center mb-6 text-light-gray text-sm font-medium hover:underline">
+                <i class="fas fa-arrow-left mr-2"></i> Back
             </button>
-        </form>
 
-        <!-- Links -->
-        <p class="mt-6 text-center">
-            <a href="forgot-password.php" class="text-sm text-dark-brown hover:underline">Forgot Password?</a>
-            |
-            <a href="/Kapelicious/frontend/pages/html/signup.html" class="text-sm text-dark-brown hover:underline">Sign
-                up</a>
-        </p>
+            <!-- Title -->
+            <h1 class="text-3xl font-bold text-light-gray mb-6">Welcome Back</h1>
+            <p class="text-light-gray mb-6">Log in to access your account</p>
+
+            <!-- Alerts -->
+            <?php if ($is_invalid): ?>
+            <p class="text-red-600 mb-4 text-center font-medium">Invalid email or password.</p>
+            <?php endif; ?>
+            <?php if ($activation_error): ?>
+            <p class="text-red-600 mb-4 text-center font-medium">Your account has not been activated. Please check your
+                email to verify your account.</p>
+            <?php endif; ?>
+
+            <!-- Form -->
+            <form method="post" class="space-y-6">
+                <!-- Email Field -->
+                <div class="relative flex items-center border border-beige rounded-md shadow-sm bg-white">
+                    <i class="fas fa-envelope text-dark-brown absolute left-3"></i>
+                    <input type="email" name="email" id="email" value="<?= htmlspecialchars($_POST["email"] ?? "") ?>"
+                        required
+                        class="w-full pl-10 pr-3 py-2 bg-transparent text-dark-brown placeholder-dark-brown focus:outline-none focus:ring-2 focus:ring-dark-brown focus:border-dark-brown rounded-md"
+                        placeholder="Enter your email" />
+                </div>
+
+                <!-- Password Field -->
+                <div class="relative">
+                    <div class="flex items-center border border-beige rounded-md shadow-sm bg-white">
+                        <i class="fas fa-lock text-dark-brown absolute left-3"></i>
+                        <input type="password" name="password" id="password" required
+                            class="w-full pl-10 pr-3 py-2 bg-transparent text-dark-brown placeholder-dark-brown focus:outline-none focus:ring-2 focus:ring-dark-brown focus:border-dark-brown rounded-md"
+                            placeholder="Enter your password" />
+                    </div>
+                    <!-- Forgot Password -->
+                    <div class="mt-2">
+                        <a href="forgot-password.php" class="text-sm text-beige hover:underline">Forgot
+                            Password?</a>
+                    </div>
+                </div>
+
+                <!-- Login Button -->
+                <button
+                    class="w-full bg-beige text-dark-brown py-3 rounded-full font-medium text-lg hover:bg-opacity-90 transition">
+                    Log In
+                </button>
+            </form>
+
+            <!-- Sign Up -->
+            <p class="mt-6 text-center text-sm text-light-gray">
+                Don’t have an account? <a href="/Kapelicious/frontend/pages/html/signup.html"
+                    class="font-medium hover:underline">Sign up now</a>
+            </p>
+        </div>
     </div>
 </body>
 
