@@ -78,7 +78,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <!-- Right Side: Login Form -->
         <div class="w-full md:w-1/2 p-8">
             <!-- Back Button -->
-            <button onclick="history.back()"
+            <button onclick="location.href='/Kapelicious/index.php'"
                 class="flex items-center mb-6 text-light-gray text-sm font-medium hover:underline">
                 <i class="fas fa-arrow-left mr-2"></i> Back
             </button>
@@ -131,7 +131,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             <!-- Sign Up -->
             <p class="mt-6 text-center text-sm text-light-gray">
-                Don’t have an account? <a href="/Kapelicious/frontend/pages/html/signup.html"
+                Don’t have an account? <a href="/Kapelicious/frontend/pages/php/signup.php"
                     class="font-medium hover:underline">Sign up now</a>
             </p>
         </div>
