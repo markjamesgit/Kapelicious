@@ -55,7 +55,23 @@
                     <i class="fas fa-user text-dark-brown absolute left-3"></i>
                     <input type="text" name="name" id="name" required
                         class="w-full pl-10 pr-3 py-2 bg-transparent text-dark-brown placeholder-dark-brown focus:outline-none focus:ring-2 focus:ring-dark-brown focus:border-dark-brown rounded-md"
-                        placeholder="Enter your name" />
+                        placeholder="Enter your fullname" />
+                </div>
+
+                <!-- Username Field -->
+                <div class="relative flex items-center border border-beige rounded-md shadow-sm bg-white">
+                    <i class="fas fa-user text-dark-brown absolute left-3"></i>
+                    <input type="text" name="username" id="username" required
+                        class="w-full pl-10 pr-3 py-2 bg-transparent text-dark-brown placeholder-dark-brown focus:outline-none focus:ring-2 focus:ring-dark-brown focus:border-dark-brown rounded-md"
+                        placeholder="Enter your username" />
+                </div>
+
+                <!-- Address Field -->
+                <div class="relative flex items-center border border-beige rounded-md shadow-sm bg-white">
+                    <i class="fas fa-map-marker-alt text-dark-brown absolute left-3"></i>
+                    <input type="text" name="address" id="address" required
+                        class="w-full pl-10 pr-3 py-2 bg-transparent text-dark-brown placeholder-dark-brown focus:outline-none focus:ring-2 focus:ring-dark-brown focus:border-dark-brown rounded-md"
+                        placeholder="Enter your address" />
                 </div>
 
                 <!-- Email Field -->

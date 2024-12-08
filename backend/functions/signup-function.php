@@ -43,7 +43,7 @@ if ($count > 0) { // Check if email count is greater than 0
 // Generate credentials and insert user into the database
 $password_hash = password_hash($_POST["password"], PASSWORD_DEFAULT); // Hash the password
 $verification_code = rand(100000, 999999); // Generate a random verification code
-$sql = "INSERT INTO users (name, email, password_hash, verification_code, is_verified) VALUES (?, ?, ?, ?, 0)"; // SQL to insert user
+$sql = "INSERT INTO users (name, username, address, email, password_hash, verification_code, is_verified) VALUES (?, ?, ?, ?, ?, ?, 0)"; // SQL to insert user
 $stmt = $mysqli->prepare($sql); // Prepare the insert statement
 
 if (!$stmt->prepare($sql)) { // Check if statement preparation failed
@@ -52,7 +52,7 @@ if (!$stmt->prepare($sql)) { // Check if statement preparation failed
     exit; // Exit script
 }
 
-$stmt->bind_param("ssss", $_POST["name"], $_POST["email"], $password_hash, $verification_code); // Bind parameters
+$stmt->bind_param("ssssss", $_POST["name"], $_POST["username"], $_POST["address"], $_POST["email"], $password_hash, $verification_code); // Bind parameters
 $stmt->execute(); // Execute the insert statement
 
 // Send verification email
