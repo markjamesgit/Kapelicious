@@ -33,7 +33,7 @@
             <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Change Profile Information</h2>
 
             <!-- Profile Information Form -->
-            <form action="change_profile_info_process.php" method="POST" class="space-y-6">
+            <form action="../../../backend/functions/change-profile-info-process.php" method="POST" class="space-y-6">
                 <!-- Name -->
                 <div>
                     <label for="name" class="block text-sm font-semibold text-gray-600 mb-2">
