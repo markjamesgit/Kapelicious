@@ -68,7 +68,8 @@ if (isset($_SESSION["user_id"])) {
                     <!-- Profile Picture and Name -->
                     <button @click="open = !open" class="flex items-center space-x-2 focus:outline-none">
                         <img src="<?= htmlspecialchars('/Kapelicious/frontend/assets/uploads/' . basename($user['profile_picture'] ?? '/frontend/assets/default-profile.jpg')) ?>"
-                            alt="Profile Picture" class="w-10 h-10 rounded-full border-2 border-dark-brown">
+                            alt="Profile Picture"
+                            class="w-12 h-12 object-cover rounded-full border-2 border-dark-brown">
                         <p class="text-md font-semibold"><?= htmlspecialchars($user['username']) ?></p>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                             stroke="currentColor" class="w-5 h-5">
