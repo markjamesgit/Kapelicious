@@ -1,29 +1,50 @@
 <?php
 
-$mysqli = require __DIR__ . "../../../../backend/config/database.php"; // Connect to the database
+// Connect to the database
+$mysqli = require __DIR__ . "../../../../backend/config/database.php"; 
 
-$error_message = null; // To store error messages
+// To store error messages
+$error_message = null; 
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') { // Check if the request is a POST
-    $code = $_POST['verification_code']; // Get the verification code from the form
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+     // Get the verification code from the form
+    $code = $_POST['verification_code'];
+    
     // Check if the verification code matches an unverified account
-    $stmt = $mysqli->prepare("SELECT email FROM users WHERE verification_code = ? AND is_verified = 0"); // Prepare the query
-    $stmt->bind_param("s", $code); // Bind the verification code to the query
-    $stmt->execute(); // Execute the query
-    $stmt->bind_result($email); // Bind the result of the query to $email
-    $stmt->fetch(); // Fetch the result
-    $stmt->close(); // Close the statement
+
+    // Prepare the query
+    $stmt = $mysqli->prepare("SELECT email FROM users WHERE verification_code = ? AND is_verified = 0"); 
+
+    // Bind the verification code to the query
+    $stmt->bind_param("s", $code); 
+
+    // Execute the query
+    $stmt->execute(); 
+
+    // Bind the result of the query to $email
+    $stmt->bind_result($email); 
+
+    // Fetch the result
+    $stmt->fetch();
+    
+    // Close the statement
+    $stmt->close(); 
 
     if ($email) { // Check if an email was found
         // Mark the account as verified
-        $stmt = $mysqli->prepare("UPDATE users SET is_verified = 1, verification_code = NULL WHERE verification_code = ?"); // Prepare the query
-        $stmt->bind_param("s", $code); // Bind the verification code to the query
-        $stmt->execute(); // Execute the query
+        $stmt = $mysqli->prepare("UPDATE users SET is_verified = 1, verification_code = NULL WHERE verification_code = ?"); 
 
-        header("Location: /Kapelicious/frontend/pages/html/signup-success.html"); // Redirect to success page
-        exit; // Exit the script
+        // Bind the verification code to the query
+        $stmt->bind_param("s", $code); 
+
+        // Execute the query
+        $stmt->execute(); 
+
+        header("Location: /Kapelicious/frontend/pages/html/signup-success.html"); 
+        exit; 
     } else {
-        $error_message = "Invalid verification code!"; // Set the error message if the verification code is invalid
+        $error_message = "Invalid verification code!"; 
     }
 }
 ?>
