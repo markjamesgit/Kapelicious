@@ -47,7 +47,7 @@
                     </label>
                     <input type="text" id="name" name="name" value="<?= htmlspecialchars($user['name']) ?>"
                         class="w-full px-4 py-2 border border-beige rounded-md focus:outline-none focus:ring-2 focus:ring-beige focus:border-dark-brown"
-                        required placeholder="Enter your full name">
+                        placeholder="Enter your full name">
                 </div>
 
                 <!-- Username -->
@@ -57,7 +57,7 @@
                     </label>
                     <input type="text" id="username" name="username" value="<?= htmlspecialchars($user['username']) ?>"
                         class="w-full px-4 py-2 border border-beige rounded-md focus:outline-none focus:ring-2 focus:ring-beige focus:border-dark-brown"
-                        required placeholder="Enter a new username">
+                        placeholder="Enter a new username">
                 </div>
 
                 <!-- Address -->

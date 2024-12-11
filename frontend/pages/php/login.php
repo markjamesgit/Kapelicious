@@ -44,7 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                 // Redirect based on user type
                 if ($user["user_type"] == "admin") {
-                    header("Location: /Kapelicious/frontend/admin/dashboard.php");
+                    header("Location: /Kapelicious/frontend/admin/index.php");
                 } else {
                     header("Location: /Kapelicious/index.php");
                 }
