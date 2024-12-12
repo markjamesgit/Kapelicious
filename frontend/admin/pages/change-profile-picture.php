@@ -71,7 +71,7 @@
             <!-- Current Profile Picture -->
             <div class="text-center">
                 <p class="text-sm text-light-gray mb-2">Current Profile Picture</p>
-                <img src="<?= htmlspecialchars('/Kapelicious/frontend/admin/assets/uploads/' . basename($user['profile_picture'] ?? '../assets/uploads/default-profile.jpg')) ?>"
+                <img src="<?= htmlspecialchars('/Kapelicious/frontend/admin/assets/uploads/' . basename($sidebarUser['profile_picture'] ?? '../assets/uploads/default-profile.jpg')) ?>"
                     alt="Current Profile Picture"
                     class="w-32 h-32 rounded-full object-cover mx-auto border-4 border-light-gray">
             </div>

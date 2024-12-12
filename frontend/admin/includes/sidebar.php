@@ -22,10 +22,10 @@ if (isset($_SESSION["user_id"])) {
     $stmt->execute();
 
     // Get the result of the query using the get_result method
-    $result = $stmt->get_result();
+    $sidebarResult = $stmt->get_result();
 
     // Fetch the user info from the result using the fetch_assoc method
-    $user = $result->fetch_assoc();
+    $sidebarUser = $sidebarResult->fetch_assoc();
 }
 ?>
 
@@ -33,13 +33,13 @@ if (isset($_SESSION["user_id"])) {
 <aside class="bg-dark-brown w-64 min-h-screen text-light-gray flex flex-col">
     <!-- Profile Section -->
     <div class="p-6 text-center border-b border-beige">
-        <img src="<?= htmlspecialchars('/Kapelicious/frontend/admin/assets/uploads/' . basename($user['profile_picture'] ?? '../assets/uploads/default-profile.jpg')) ?>"
+        <img src="<?= htmlspecialchars('/Kapelicious/frontend/admin/assets/uploads/' . basename($sidebarUser['profile_picture'] ?? '../assets/uploads/default-profile.jpg')) ?>"
             alt="Current Profile Picture"
             class="w-32 h-32 rounded-full object-cover mx-auto border-4 border-light-gray">
-        <h2 class="text-lg font-bold"><?= htmlspecialchars($user['username']) ?></h2>
+        <h2 class="text-lg font-bold"><?= htmlspecialchars($sidebarUser['username']) ?></h2>
         <div class="relative mt-2">
             <button
-                class="text-sm bg-beige text-dark-brown px-4 py-2 rounded-full hover:bg-opacity-90 w-full text-left">
+                class="text-sm bg-beige text-dark-brown px-4 py-2 rounded-full hover:bg-opacity-90 w-full text-center">
                 Profile Options
             </button>
             <div
@@ -50,6 +50,8 @@ if (isset($_SESSION["user_id"])) {
                     class="block px-4 py-2 hover:bg-beige">Change Profile Info</a>
                 <a href="/Kapelicious/frontend/admin/pages/change-profile-picture.php"
                     class="block px-4 py-2 hover:bg-beige">Change Profile Picture</a>
+                <a href="/Kapelicious/frontend/admin/pages/manage-accounts.php"
+                    class="block px-4 py-2 hover:bg-beige">Manage Accounts</a>
             </div>
         </div>
     </div>

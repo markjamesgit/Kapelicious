@@ -2,6 +2,7 @@
 // Initialize flags for login status and account activation status
 $is_invalid = false; 
 $activation_error = false;
+$account_locked = false; // New flag for account lock due to failed attempts
 
 // Check if the request method is POST
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -29,32 +30,64 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             // Set activation error flag
             $activation_error = true;
         } else {
-            // Verify the password
-            if (password_verify($_POST["password"], $user["password_hash"])) {
+            // Check if the account is blocked due to too many failed attempts
+            if ($user["is_blocked"] == 1) {
+                $account_locked = true;
+            } else {
+                // Verify the password
+                if (password_verify($_POST["password"], $user["password_hash"])) {
 
-                // Start a new session
-                session_start();
-                // Regenerate session ID for security
-                session_regenerate_id();
+                    // Start a new session
+                    session_start();
+                    // Regenerate session ID for security
+                    session_regenerate_id();
 
-                // Store user ID in session
-                $_SESSION["user_id"] = $user["id"];
-                // Store user type in session
-                $_SESSION["user_type"] = $user["user_type"];  
+                    // Store user ID in session
+                    $_SESSION["user_id"] = $user["id"];
+                    // Store user type in session
+                    $_SESSION["user_type"] = $user["user_type"];  
 
-                // Redirect based on user type
-                if ($user["user_type"] == "admin") {
-                    header("Location: /Kapelicious/frontend/admin/index.php");
+                    // Reset failed attempts upon successful login
+                    $reset_attempts_sql = "UPDATE users SET failed_attempts = 0 WHERE id = ?";
+                    $reset_stmt = $mysqli->prepare($reset_attempts_sql);
+                    $reset_stmt->bind_param("i", $user["id"]);
+                    $reset_stmt->execute();
+
+                    // Redirect based on user type
+                    if ($user["user_type"] == "admin") {
+                        header("Location: /Kapelicious/frontend/admin/index.php");
+                    } else {
+                        header("Location: /Kapelicious/index.php");
+                    }
+                    // Exit script after redirect
+                    exit;
                 } else {
-                    header("Location: /Kapelicious/index.php");
+                    // Increment failed attempts for the customer
+                    if ($user["user_type"] == "customer") {
+                        $failed_attempts = $user["failed_attempts"] + 1;
+                        // Update the failed attempts
+                        $update_attempts_sql = "UPDATE users SET failed_attempts = ? WHERE id = ?";
+                        $update_stmt = $mysqli->prepare($update_attempts_sql);
+                        $update_stmt->bind_param("ii", $failed_attempts, $user["id"]);
+                        $update_stmt->execute();
+
+                        // Block account if failed attempts reach 5
+                        if ($failed_attempts >= 5) {
+                            $block_sql = "UPDATE users SET is_blocked = 1 WHERE id = ?";
+                            $block_stmt = $mysqli->prepare($block_sql);
+                            $block_stmt->bind_param("i", $user["id"]);
+                            $block_stmt->execute();
+                        }
+                    }
+                    // Set invalid flag if login fails
+                    $is_invalid = true;
                 }
-                // Exit script after redirect
-                exit;
             }
         }
+    } else {
+        // Set invalid flag if no user found
+        $is_invalid = true;
     }
-    // Set invalid flag if login fails
-    $is_invalid = true;
 }
 ?>
 
@@ -109,6 +142,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <?php if ($activation_error): ?>
             <p class="text-red-600 mb-4 text-center font-medium">Your account has not been activated. Please check your
                 email to verify your account.</p>
+            <?php endif; ?>
+            <?php if ($account_locked): ?>
+            <p class="text-red-600 mb-4 text-center font-medium">Your account has been locked due to too many failed
+                login attempts. Please try again later or contact support.</p>
             <?php endif; ?>
 
             <!-- Form -->
