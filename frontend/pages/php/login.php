@@ -137,15 +137,44 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             <!-- Alerts -->
             <?php if ($is_invalid): ?>
-            <p class="text-red-600 mb-4 text-center font-medium">Invalid email or password.</p>
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                <strong class="font-bold">Error! </strong>
+                <span class="block sm:inline">Invalid email or password.</span>
+                <span class="absolute top-0 bottom-0 right-0 px-4 py-3"
+                    onclick="this.parentElement.style.display='none';">
+                    <svg class="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20">
+                        <title>Close</title>
+                        <path
+                            d="M14.348 5.652a1 1 0 00-1.414 0L10 8.586 7.066 5.652a1 1 0 10-1.414 1.414L8.586 10l-2.934 2.934a1 1 0 101.414 1.414L10 11.414l2.934 2.934a1 1 0 001.414-1.414L11.414 10l2.934-2.934a1 1 0 000-1.414z" />
+                    </svg>
+                </span>
+            </div>
             <?php endif; ?>
+
             <?php if ($activation_error): ?>
-            <p class="text-red-600 mb-4 text-center font-medium">Your account has not been activated. Please check your
-                email to verify your account.</p>
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                <strong class="font-bold">Error! </strong>
+                <span class="block sm:inline">Your account has not been activated. Please check your email to verify
+                    your account.</span>
+                <span class="absolute top-0 bottom-0 right-0 px-4 py-3"
+                    onclick="this.parentElement.style.display='none';">
+                    <svg class="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20">
+                        <title>Close</title>
+                        <path
+                            d="M14.348 5.652a1 1 0 00-1.414 0L10 8.586 7.066 5.652a1 1 0 10-1.414 1.414L8.586 10l-2.934 2.934a1 1 0 101.414 1.414L10 11.414l2.934 2.934a1 1 0 001.414-1.414L11.414 10l2.934-2.934a1 1 0 000-1.414z" />
+                    </svg>
+                </span>
+            </div>
             <?php endif; ?>
+
             <?php if ($account_locked): ?>
-            <p class="text-red-600 mb-4 text-center font-medium">Your account has been locked due to too many failed
-                login attempts. Please try again later or contact support.</p>
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                <strong class="font-bold">Error! </strong>
+                <span class="block sm:inline">Your account has been locked due to too many failed login attempts. Please
+                    try again later or contact support.</span>
+            </div>
             <?php endif; ?>
 
             <!-- Form -->
