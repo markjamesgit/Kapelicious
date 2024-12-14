@@ -6,6 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Check if the user is logged in by checking if the session user_id is set
 if (isset($_SESSION["user_id"])) {
+   
     // Connect to the MySQL database
     $mysqli = require "C:/xampp/htdocs/Kapelicious/backend/config/database.php";
 
@@ -26,6 +27,7 @@ if (isset($_SESSION["user_id"])) {
 
     // Fetch the user info from the result using the fetch_assoc method
     $sidebarUser = $sidebarResult->fetch_assoc();
+    
 }
 ?>
 
@@ -61,8 +63,23 @@ if (isset($_SESSION["user_id"])) {
         <ul class="space-y-2 px-4 mt-4">
             <li><a href="dashboard-content.php" target="contentFrame"
                     class="block px-4 py-2 rounded-md hover:bg-beige">Dashboard</a></li>
-            <li><a href="manage-menu.php" target="contentFrame" class="block px-4 py-2 rounded-md hover:bg-beige">Manage
-                    Menu</a></li>
+
+            <!-- Manage Menu Dropdown -->
+            <li class="relative">
+                <button
+                    class="block w-full px-4 py-2 rounded-md hover:bg-beige text-left flex justify-between items-center"
+                    onclick="toggleDropdown('manage-menu-dropdown')">
+                    Manage Menu
+                    <span class="text-sm">&#9660;</span>
+                </button>
+                <ul id="manage-menu-dropdown" class="hidden space-y-2 bg-dark-brown pl-6">
+                    <li><a href="/Kapelicious/frontend/admin/pages/add-category.php"
+                            class="block px-4 py-2 rounded-md hover:bg-beige">Add Category</a></li>
+                    <li><a href="/Kapelicious/frontend/admin/pages/add-product.php"
+                            class="block px-4 py-2 rounded-md hover:bg-beige">Add Product</a></li>
+                </ul>
+            </li>
+
             <li><a href="orders.php" target="contentFrame" class="block px-4 py-2 rounded-md hover:bg-beige">Orders</a>
             </li>
             <li><a href="inventory.php" target="contentFrame"
@@ -71,7 +88,7 @@ if (isset($_SESSION["user_id"])) {
             </li>
             <li><a href="reports.php" target="contentFrame"
                     class="block px-4 py-2 rounded-md hover:bg-beige">Reports</a></li>
-            <li><a href="/Kapelicious/frontend/admin/pages/settings.php" target="contentFrame"
+            <li><a href="/Kapelicious/frontend/admin/pages/settings.php"
                     class="block px-4 py-2 rounded-md hover:bg-beige">Settings</a></li>
             <li><a href="notifications.php" target="contentFrame"
                     class="block px-4 py-2 rounded-md hover:bg-beige">Notifications</a></li>
@@ -85,3 +102,11 @@ if (isset($_SESSION["user_id"])) {
             class="block text-center bg-red-500 px-4 py-2 rounded-full hover:bg-red-600">Logout</a>
     </div>
 </aside>
+
+<script>
+// Function to toggle the visibility of the dropdown menu
+function toggleDropdown(dropdownId) {
+    const dropdown = document.getElementById(dropdownId);
+    dropdown.classList.toggle('hidden');
+}
+</script>
