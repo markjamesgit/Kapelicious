@@ -1,3 +1,16 @@
+<?php
+// Include database connection
+$mysqli = require __DIR__ . '/backend/config/database.php';
+
+// Fetch slideshow images from settings
+$sql = "SELECT slideshow_images FROM settings WHERE id = 1";
+$result = $mysqli->query($sql);
+$settings = $result->fetch_assoc();
+
+// Decode the JSON array of image paths
+$slideshowImages = json_decode($settings['slideshow_images'] ?? '[]', true);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -31,26 +44,22 @@
 
     <!-- Main Content -->
     <div class="flex-grow container mx-auto max-w-full">
-
         <!-- Full-Screen Slideshow -->
         <div class="hero-section max-w-full">
             <section class="hero relative h-screen w-full overflow-hidden">
                 <div class="absolute inset-0">
-                    <div x-data="{ slideIndex: 0 }" x-init="setInterval(() => slideIndex = (slideIndex + 1) % 3, 3000)"
-                        class="relative w-full h-full">
-                        <div class="absolute inset-0 transition-opacity" x-show="slideIndex === 0"
-                            style="background-image: url('frontend/assets/image1.jpg'); background-size: cover; background-position: center;">
+                    <div x-data="{ slideIndex: 0 }"
+                        x-init="setInterval(() => slideIndex = (slideIndex + 1) % <?= count($slideshowImages) ?>, 4000)"
+                        class="relative w-full h-full transition duration-2000">
+                        <?php foreach ($slideshowImages as $index => $imagePath): ?>
+                        <div class="absolute inset-0 transition-opacity duration-1500 ease-in-out"
+                            x-show="slideIndex === <?= $index ?>"
+                            x-transition:enter="transition-opacity duration-1000 ease-in-out"
+                            x-transition:leave="transition-opacity duration-1000 ease-in-out"
+                            style="background-image: url('<?= htmlspecialchars($imagePath) ?>'); background-size: cover; background-position: center;">
                         </div>
-                        <div class="absolute inset-0 transition-opacity" x-show="slideIndex === 1"
-                            style="background-image: url('frontend/assets/image2.avif'); background-size: cover; background-position: center;">
-                        </div>
-                        <div class="absolute inset-0 transition-opacity" x-show="slideIndex === 2"
-                            style="background-image: url('frontend/assets/image3.jpg'); background-size: cover; background-position: center;">
-                        </div>
+                        <?php endforeach; ?>
                     </div>
-                </div>
-                <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-                    <h2 class="text-5xl font-extrabold text-white text-center shadow-md">Welcome to Kapelicious!</h2>
                 </div>
             </section>
         </div>

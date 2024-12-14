@@ -71,7 +71,7 @@ if (isset($_SESSION["user_id"])) {
             </li>
             <li><a href="reports.php" target="contentFrame"
                     class="block px-4 py-2 rounded-md hover:bg-beige">Reports</a></li>
-            <li><a href="settings.php" target="contentFrame"
+            <li><a href="/Kapelicious/frontend/admin/pages/settings.php" target="contentFrame"
                     class="block px-4 py-2 rounded-md hover:bg-beige">Settings</a></li>
             <li><a href="notifications.php" target="contentFrame"
                     class="block px-4 py-2 rounded-md hover:bg-beige">Notifications</a></li>
