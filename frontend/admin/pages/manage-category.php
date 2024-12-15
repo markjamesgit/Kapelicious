@@ -17,18 +17,36 @@ $searchQuery = isset($_GET['search']) ? trim($_GET['search']) : '';
 // Calculate the OFFSET
 $offset = ($page - 1) * $categoriesPerPage;
 
-// Add or Edit category
+// Handle Add or Edit category
 if (isset($_POST['add_category']) || isset($_POST['edit_category'])) {
     $name = $_POST['name'];
     $description = $_POST['description'];
+    $status = $_POST['status'] ?? 'active'; // Default to active if not set
 
+    // Handle Image Upload
     if (isset($_POST['edit_category'])) {
         // Edit category
         $id = $_POST['id'];
+        
+        // Check if a new image is uploaded
+        if ($_FILES['image']['name'] != '') {
+            // New image uploaded, move the image and update the path
+            $image = $_FILES['image']['name'];
+            $imagePath = "/Kapelicious/frontend/assets/categories/" . basename($image);
+            move_uploaded_file($_FILES['image']['tmp_name'], $_SERVER['DOCUMENT_ROOT'] . $imagePath);
+        } else {
+            // No new image uploaded, keep the existing image
+            $stmt = $mysqli->prepare("SELECT image FROM categories WHERE category_id=?");
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $existingImage = $result->fetch_assoc();
+            $imagePath = $existingImage['image'];
+        }
 
         // Prepare and execute the update query
-        $stmt = $mysqli->prepare("UPDATE categories SET name=?, description=? WHERE id=?");
-        $stmt->bind_param("ssi", $name, $description, $id);
+        $stmt = $mysqli->prepare("UPDATE categories SET name=?, description=?, image=?, status=? WHERE category_id=?");
+        $stmt->bind_param("ssssi", $name, $description, $imagePath, $status, $id);
 
         if ($stmt->execute()) {
             $_SESSION['message'] = "Category updated successfully.";
@@ -41,8 +59,13 @@ if (isset($_POST['add_category']) || isset($_POST['edit_category'])) {
         $stmt->close();
     } else {
         // Add category
-        $stmt = $mysqli->prepare("INSERT INTO categories (name, description) VALUES (?, ?)");
-        $stmt->bind_param("ss", $name, $description);
+        // Handle image upload
+        $image = $_FILES['image']['name'];
+        $imagePath = "/Kapelicious/frontend/assets/categories/" . basename($image);
+        move_uploaded_file($_FILES['image']['tmp_name'], $_SERVER['DOCUMENT_ROOT'] . $imagePath);
+
+        $stmt = $mysqli->prepare("INSERT INTO categories (name, description, image, status) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("ssss", $name, $description, $imagePath, $status);
 
         if ($stmt->execute()) {
             $_SESSION['message'] = "New category added successfully.";
@@ -56,63 +79,62 @@ if (isset($_POST['add_category']) || isset($_POST['edit_category'])) {
     }
 
     // Redirect to avoid form resubmission
-    header("Location: add-category.php");
+    header("Location: manage-category.php");
     exit;
 }
 
 // Handle Delete category
 if (isset($_GET['delete_id'])) {
-    $id = $_GET['delete_id'];
+$id = $_GET['delete_id'];
 
-    // Prepare the SQL query
-    $stmt = $mysqli->prepare("DELETE FROM categories WHERE id=?");
-    $stmt->bind_param("i", $id);
+// Prepare the SQL query
+$stmt = $mysqli->prepare("DELETE FROM categories WHERE category_id=?");
+$stmt->bind_param("i", $id);
 
-    if ($stmt->execute()) {
-        $_SESSION['message'] = "Category deleted successfully.";
-        $_SESSION['message_type'] = "success";
-    } else {
-        $_SESSION['message'] = "Error: " . $stmt->error;
-        $_SESSION['message_type'] = "error";
-    }
+if ($stmt->execute()) {
+$_SESSION['message'] = "Category deleted successfully.";
+$_SESSION['message_type'] = "success";
+} else {
+$_SESSION['message'] = "Error: " . $stmt->error;
+$_SESSION['message_type'] = "error";
+}
 
-    $stmt->close();
+$stmt->close();
 
-    // Redirect to avoid URL manipulation
-    header("Location: add-category.php");
-    exit;
+// Redirect to avoid URL manipulation
+header("Location: manage-category.php");
+exit;
 }
 
 // Handle multiple deletion
 if (isset($_POST['delete_multiple'])) {
-    if (isset($_POST['delete_ids']) && !empty($_POST['delete_ids'])) {
-        $deleteIds = $_POST['delete_ids'];
+if (isset($_POST['delete_ids']) && !empty($_POST['delete_ids'])) {
+$deleteIds = $_POST['delete_ids'];
 
-        // Prepare SQL query for deleting multiple categories
-        $stmt = $mysqli->prepare("DELETE FROM categories WHERE id IN (" . implode(",", array_fill(0, count($deleteIds), "?")) . ")");
-        $types = str_repeat("i", count($deleteIds));  // Prepare the parameter type string
-        $stmt->bind_param($types, ...$deleteIds);
+// Prepare SQL query for deleting multiple categories
+$stmt = $mysqli->prepare("DELETE FROM categories WHERE category_id IN (" . implode(",", array_fill(0, count($deleteIds),
+"?")) . ")");
+$types = str_repeat("i", count($deleteIds)); // Prepare the parameter type string
+$stmt->bind_param($types, ...$deleteIds);
 
-        if ($stmt->execute()) {
-            $_SESSION['message'] = "Selected categories deleted successfully.";
-            $_SESSION['message_type'] = "success";
-        } else {
-            $_SESSION['message'] = "Error: " . $stmt->error;
-            $_SESSION['message_type'] = "error";
-        }
-
-        $stmt->close();
-    } else {
-        $_SESSION['message'] = "No categories selected for deletion.";
-        $_SESSION['message_type'] = "error";
-    }
-
-    // Redirect to the same page with the search query and pagination intact
-    header("Location: add-category.php?search=" . urlencode($searchQuery) . "&page=" . $page);
-    exit;
+if ($stmt->execute()) {
+$_SESSION['message'] = "Selected categories deleted successfully.";
+$_SESSION['message_type'] = "success";
+} else {
+$_SESSION['message'] = "Error: " . $stmt->error;
+$_SESSION['message_type'] = "error";
 }
 
+$stmt->close();
+} else {
+$_SESSION['message'] = "No categories selected for deletion.";
+$_SESSION['message_type'] = "error";
+}
 
+// Redirect to the same page with the search query and pagination intact
+header("Location: manage-category.php?search=" . urlencode($searchQuery) . "&page=" . $page);
+exit;
+}
 
 // Fetch the categories for the current page with LIMIT and OFFSET, with optional search query
 $searchQuery = isset($_GET['search']) ? trim($_GET['search']) : '';
@@ -138,16 +160,16 @@ $totalPages = ceil($totalCategories / $categoriesPerPage);
 // Fetch category data if editing
 $category = null;
 if (isset($_GET['id'])) {
-    $id = $_GET['id'];
-    $stmt = $mysqli->prepare("SELECT * FROM categories WHERE id=?");
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-    $categoryResult = $stmt->get_result();
-    $category = $categoryResult->fetch_assoc();
-    $stmt->close();
+$id = $_GET['id'];
+$stmt = $mysqli->prepare("SELECT * FROM categories WHERE category_id=?");
+$stmt->bind_param("i", $id);
+$stmt->execute();
+$categoryResult = $stmt->get_result();
+$category = $categoryResult->fetch_assoc();
+$stmt->close();
 } else {
-    $_POST['name'] = '';
-    $_POST['description'] = '';
+$_POST['name'] = '';
+$_POST['description'] = '';
 }
 ?>
 
@@ -173,6 +195,7 @@ if (isset($_GET['id'])) {
         }
     }
     </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 
 <body class="min-h-screen bg-light-gray flex">
@@ -195,9 +218,9 @@ if (isset($_GET['id'])) {
         <?php endif; ?>
 
         <!-- Add/Edit Category Form -->
-        <form method="POST" class="bg-white p-6">
+        <form method="POST" enctype="multipart/form-data" class="bg-white p-6">
             <?php if (isset($category)): ?>
-            <input type="hidden" name="id" value="<?= htmlspecialchars($category['id']) ?>">
+            <input type="hidden" name="id" value="<?= htmlspecialchars($category['category_id']) ?>">
             <?php endif; ?>
 
             <input type="text" name="name" placeholder="Category Name" required class="mb-4 p-2 border rounded w-full"
@@ -205,6 +228,21 @@ if (isset($_GET['id'])) {
 
             <textarea name="description" placeholder="Category Description" required
                 class="mb-4 p-2 border rounded w-full"><?= isset($category) ? htmlspecialchars($category['description']) : '' ?></textarea>
+
+            <label for="status" class="block mb-2">Status</label>
+            <select name="status" class="mb-4 p-2 border rounded w-full">
+                <option value="active" <?= (isset($category) && $category['status'] == 'active') ? 'selected' : '' ?>>
+                    Active</option>
+                <option value="inactive"
+                    <?= (isset($category) && $category['status'] == 'inactive') ? 'selected' : '' ?>>Inactive</option>
+            </select>
+
+            <label for="image" class="block mb-2">Category Image</label>
+            <input type="file" name="image" class="mb-4 p-2 border rounded w-full">
+
+            <?php if (isset($category) && !empty($category['image'])): ?>
+            <img src="<?= htmlspecialchars($category['image']) ?>" alt="Category Image" class="mt-4 max-w-xs">
+            <?php endif; ?>
 
             <button type="submit" name="<?= isset($category) ? 'edit_category' : 'add_category' ?>"
                 class="bg-dark-brown text-white rounded-full p-2">
@@ -214,7 +252,7 @@ if (isset($_GET['id'])) {
 
         <h2 class="text-2xl font-semibold text-dark-brown mt-8">Categories List</h2>
 
-        <form method="GET" action="add-category.php" class="mb-6">
+        <form method="GET" action="manage-category.php" class="mb-6">
             <!-- Search Form -->
             <div class="flex items-center space-x-2">
                 <input type="text" name="search" value="<?= htmlspecialchars($searchQuery) ?>"
@@ -223,7 +261,7 @@ if (isset($_GET['id'])) {
             </div>
         </form>
 
-        <form method="POST" action="add-category.php">
+        <form method="POST" action="manage-category.php">
             <!-- Delete Selected Form -->
             <div class="overflow-x-auto p-6">
                 <div class="flex justify-between mt-4">
@@ -243,6 +281,8 @@ if (isset($_GET['id'])) {
                             <th class="px-6 py-3 text-lg font-semibold">ID</th>
                             <th class="px-6 py-3 text-lg font-semibold">Name</th>
                             <th class="px-6 py-3 text-lg font-semibold">Description</th>
+                            <th class="px-6 py-3 text-lg font-semibold">Status</th>
+                            <th class="px-6 py-3 text-lg font-semibold">Image</th>
                             <th class="px-6 py-3 text-lg font-semibold rounded-tr-lg">Actions</th>
                         </tr>
                     </thead>
@@ -251,16 +291,23 @@ if (isset($_GET['id'])) {
                         <?php while ($row = $result->fetch_assoc()): ?>
                         <tr class="border-b">
                             <td class="px-6 py-3">
-                                <input type="checkbox" name="delete_ids[]" value="<?= htmlspecialchars($row['id']) ?>"
-                                    class="delete-checkbox">
+                                <input type="checkbox" name="delete_ids[]"
+                                    value="<?= htmlspecialchars($row['category_id']) ?>" class="delete-checkbox">
                             </td>
-                            <td class="px-6 py-3"><?= htmlspecialchars($row["id"]) ?></td>
+                            <td class="px-6 py-3"><?= htmlspecialchars($row["category_id"]) ?></td>
                             <td class="px-6 py-3"><?= htmlspecialchars($row["name"]) ?></td>
                             <td class="px-6 py-3"><?= htmlspecialchars($row["description"]) ?></td>
+                            <td class="px-6 py-3"><?= htmlspecialchars($row["status"]) ?></td>
                             <td class="px-6 py-3">
-                                <a href="?id=<?= htmlspecialchars($row['id']) ?>"
+                                <?php if ($row['image']): ?>
+                                <img src="<?= htmlspecialchars($row['image']) ?>" alt="Category Image"
+                                    class="w-16 h-16">
+                                <?php endif; ?>
+                            </td>
+                            <td class="px-6 py-3">
+                                <a href="?id=<?= htmlspecialchars($row['category_id']) ?>"
                                     class="bg-blue-500 text-white rounded-full p-2">Edit</a>
-                                <a href="?delete_id=<?= htmlspecialchars($row['id']) ?>"
+                                <a href="?delete_id=<?= htmlspecialchars($row['category_id']) ?>"
                                     onclick="return confirm('Are you sure?')"
                                     class="bg-red-500 text-white rounded-full p-2">Delete</a>
                             </td>
@@ -268,7 +315,7 @@ if (isset($_GET['id'])) {
                         <?php endwhile; ?>
                         <?php else: ?>
                         <tr>
-                            <td colspan="5" class="px-6 py-3 text-center">No categories found.</td>
+                            <td colspan="7" class="px-6 py-3 text-center">No categories found.</td>
                         </tr>
                         <?php endif; ?>
                     </tbody>
@@ -289,6 +336,7 @@ if (isset($_GET['id'])) {
                 </div>
             </div>
         </form>
+
 
     </main>
 

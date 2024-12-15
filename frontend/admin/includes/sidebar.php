@@ -73,10 +73,10 @@ if (isset($_SESSION["user_id"])) {
                     <span class="text-sm">&#9660;</span>
                 </button>
                 <ul id="manage-menu-dropdown" class="hidden space-y-2 bg-dark-brown pl-6">
-                    <li><a href="/Kapelicious/frontend/admin/pages/add-category.php"
-                            class="block px-4 py-2 rounded-md hover:bg-beige">Add Category</a></li>
-                    <li><a href="/Kapelicious/frontend/admin/pages/add-product.php"
-                            class="block px-4 py-2 rounded-md hover:bg-beige">Add Product</a></li>
+                    <li><a href="/Kapelicious/frontend/admin/pages/manage-category.php"
+                            class="block px-4 py-2 rounded-md hover:bg-beige">Categor List</a></li>
+                    <li><a href="/Kapelicious/frontend/admin/pages/manage-product.php"
+                            class="block px-4 py-2 rounded-md hover:bg-beige">Product List</a></li>
                 </ul>
             </li>
 
