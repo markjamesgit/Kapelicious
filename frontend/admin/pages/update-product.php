@@ -43,7 +43,7 @@ if ($stmt->execute()) {
         $stmt->execute();
     }
 
-    header("Location: /Kapelicious/frontend/admin/pages/manage-products.php"); // Redirect to the manage products page
+    header("Location: /Kapelicious/frontend/admin/pages/manage-product.php"); // Redirect to the manage products page
     exit;
 } else {
     echo "Error updating product.";

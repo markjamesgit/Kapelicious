@@ -68,7 +68,7 @@ if ($productId) {
 
         <!-- Edit Product Form -->
         <div class="bg-white p-6 rounded-lg shadow-md">
-            <form action="/Kapelicious/frontend/admin/functions/update-product.php" method="POST"
+            <form action="/Kapelicious/frontend/admin/pages/update-product.php" method="POST"
                 enctype="multipart/form-data">
                 <input type="hidden" name="product_id" value="<?= $product['product_id'] ?>">
 
@@ -104,8 +104,10 @@ if ($productId) {
 
                 <label for="productStatus" class="block text-sm font-semibold mb-2">Status:</label>
                 <select name="status" id="productStatus" class="w-full p-3 border rounded-md mb-4" required>
-                    <option value="active" <?= $product['status'] == 'active' ? 'selected' : '' ?>>Active</option>
-                    <option value="inactive" <?= $product['status'] == 'inactive' ? 'selected' : '' ?>>Inactive</option>
+                    <option value="available" <?= $product['status'] == 'available' ? 'selected' : '' ?>>Available
+                    </option>
+                    <option value="unavailable" <?= $product['status'] == 'unavailable' ? 'selected' : '' ?>>Unavailable
+                    </option>
                 </select>
 
                 <?php if ($product['image']): ?>

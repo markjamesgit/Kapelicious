@@ -261,8 +261,8 @@ $totalPages = ceil($totalProducts / $limit);
                     <select name="status" id="productStatus"
                         class="w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                         required>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
+                        <option value="available">Available</option>
+                        <option value="unavailable">Unavailable</option>
                     </select>
                 </div>
 

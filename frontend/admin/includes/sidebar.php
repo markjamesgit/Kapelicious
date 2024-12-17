@@ -82,8 +82,6 @@ if (isset($_SESSION["user_id"])) {
 
             <li><a href="orders.php" target="contentFrame" class="block px-4 py-2 rounded-md hover:bg-beige">Orders</a>
             </li>
-            <li><a href="/Kapelicious/frontend/admin/pages/manage-inventory.php"
-                    class="block px-4 py-2 rounded-md hover:bg-beige">Inventory</a></li>
             <li><a href="reports.php" target="contentFrame"
                     class="block px-4 py-2 rounded-md hover:bg-beige">Reports</a></li>
             <li><a href="/Kapelicious/frontend/admin/pages/settings.php"
