@@ -68,7 +68,7 @@ if ($productId) {
 
         <!-- Edit Product Form -->
         <div class="bg-white p-6 rounded-lg shadow-md">
-            <form action="/Kapelicious/frontend/admin/pages/update-product.php" method="POST"
+            <form action="/Kapelicious/frontend/admin/functions/update-product.php" method="POST"
                 enctype="multipart/form-data">
                 <input type="hidden" name="product_id" value="<?= $product['product_id'] ?>">
 
@@ -89,9 +89,10 @@ if ($productId) {
                     ?>
                 </select>
 
-                <label for="productPrice" class="block text-sm font-semibold mb-2">Price:</label>
-                <input type="number" name="price" id="productPrice" value="<?= htmlspecialchars($product['price']) ?>"
-                    class="w-full p-3 border rounded-md mb-4" required>
+                <label for="productPrice" class="block text-sm font-semibold mb-2">Base Price:</label>
+                <input type="number" name="base_price" id="productPrice"
+                    value="<?= htmlspecialchars($product['base_price']) ?>" class="w-full p-3 border rounded-md mb-4"
+                    required>
 
                 <label for="productDescription" class="block text-sm font-semibold mb-2">Description:</label>
                 <textarea name="description" id="productDescription"

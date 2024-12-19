@@ -68,7 +68,7 @@ if ($categoryId) {
 
         <!-- Edit Category Form -->
         <div class="bg-white p-6 rounded-lg shadow-md">
-            <form action="/Kapelicious/frontend/admin/pages/update-category.php" method="POST"
+            <form action="/Kapelicious/frontend/admin/functions/update-category.php" method="POST"
                 enctype="multipart/form-data">
                 <input type="hidden" name="category_id" value="<?= $category['category_id'] ?>">
 
@@ -82,8 +82,10 @@ if ($categoryId) {
 
                 <label for="categoryStatus" class="block text-sm font-semibold mb-2">Status:</label>
                 <select name="status" id="categoryStatus" class="w-full p-3 border rounded-md mb-4" required>
-                    <option value="active" <?= $category['status'] == 'active' ? 'selected' : '' ?>>Active</option>
-                    <option value="inactive" <?= $category['status'] == 'inactive' ? 'selected' : '' ?>>Inactive
+                    <option value="available" <?= $category['status'] == 'available' ? 'selected' : '' ?>>Available
+                    </option>
+                    <option value="unavailable" <?= $category['status'] == 'unavailable' ? 'selected' : '' ?>>
+                        Unavailable
                     </option>
                 </select>
 

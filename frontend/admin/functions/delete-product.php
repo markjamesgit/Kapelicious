@@ -10,8 +10,8 @@ if ($_SESSION["user_type"] != "admin") {
 }
 
 // Get the product IDs from the query string
-if (isset($_GET['product_ids'])) {
-    $productIds = explode(',', $_GET['product_ids']); // Convert the comma-separated string into an array
+if (isset($_GET['product_id'])) {
+    $productIds = explode(',', $_GET['product_id']); // Convert the comma-separated string into an array
 
     // Sanitize and prepare the IDs for deletion
     $productIds = array_map(function($id) use ($mysqli) {

@@ -74,9 +74,15 @@ if (isset($_SESSION["user_id"])) {
                 </button>
                 <ul id="manage-menu-dropdown" class="hidden space-y-2 bg-dark-brown pl-6">
                     <li><a href="/Kapelicious/frontend/admin/pages/manage-category.php"
-                            class="block px-4 py-2 rounded-md hover:bg-beige">Categor List</a></li>
+                            class="block px-4 py-2 rounded-md hover:bg-beige">Category List</a></li>
                     <li><a href="/Kapelicious/frontend/admin/pages/manage-product.php"
                             class="block px-4 py-2 rounded-md hover:bg-beige">Product List</a></li>
+                    <li><a href="/Kapelicious/frontend/admin/pages/manage-variant.php"
+                            class="block px-4 py-2 rounded-md hover:bg-beige">Variant List</a></li>
+                    <li><a href="/Kapelicious/frontend/admin/pages/manage-add-ons.php"
+                            class="block px-4 py-2 rounded-md hover:bg-beige">Add Ons List</a></li>
+                    <li><a href="/Kapelicious/frontend/admin/pages/manage-flavor.php"
+                            class="block px-4 py-2 rounded-md hover:bg-beige">Flavors List</a></li>
                 </ul>
             </li>
 

@@ -43,6 +43,7 @@ if (!filter_var($logo, FILTER_VALIDATE_URL)) {
     <title>Kapelicious | Homepage</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
     [x-cloak] {
         display: none !important;
@@ -72,6 +73,32 @@ if (!filter_var($logo, FILTER_VALIDATE_URL)) {
                 <a href="frontend/pages/html/menus.html" class="hover:underline transition duration-300"
                     style="color: inherit;">Menus</a>
 
+                <!-- Cart Icon with Quantity Badge -->
+                <div class="relative" x-data="{ cartQuantity: 0 }">
+                    <?php if (isset($user)): ?>
+                    <!-- User Logged In: Redirect to Cart Page -->
+                    <button onclick="window.location.href='frontend/pages/php/cart.php'"
+                        class="relative flex items-center focus:outline-none">
+                        <!-- FontAwesome Cart Icon -->
+                        <i class="fa-solid fa-cart-shopping text-3xl text-dark-brown"
+                            style="color: <?= htmlspecialchars($textColor) ?>;"></i>
+
+                        <!-- Badge Circle -->
+                        <span x-show="cartQuantity > 0" x-text="cartQuantity"
+                            class="absolute top-0 right-0 w-5 h-5 bg-red-600 text-white text-xs font-bold flex items-center justify-center rounded-full -mt-2 -mr-2">
+                        </span>
+                    </button>
+                    <?php else: ?>
+                    <!-- User Not Logged In: Show Alert Message -->
+                    <button onclick="alert('You need to log in to access the cart.');"
+                        class="relative flex items-center focus:outline-none">
+                        <!-- FontAwesome Cart Icon -->
+                        <i class="fa-solid fa-cart-shopping text-3xl text-gray-400"
+                            style="color: <?= htmlspecialchars($textColor) ?>;"></i>
+                    </button>
+                    <?php endif; ?>
+                </div>
+
                 <?php if (isset($user)): ?>
                 <div class="relative" x-data="{ open: false }" @keydown.escape="open = false" x-cloak>
                     <button @click="open = !open" class="flex items-center space-x-2 focus:outline-none">
@@ -79,10 +106,8 @@ if (!filter_var($logo, FILTER_VALIDATE_URL)) {
                             alt="Profile Picture"
                             class="w-12 h-12 object-cover rounded-full border-2 border-dark-brown">
                         <p class="text-md font-semibold"><?= htmlspecialchars($user['username']) ?></p>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="w-5 h-5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6" />
-                        </svg>
+                        <i class="fa-solid fa-chevron-down text-dark-brown"
+                            style="color: <?= htmlspecialchars($textColor) ?>;"></i>
                     </button>
 
                     <div x-show="open" @click.away="open = false" x-transition:enter="transition ease-out duration-200"

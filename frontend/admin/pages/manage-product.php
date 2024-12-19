@@ -10,38 +10,52 @@ if ($_SESSION["user_type"] != "admin") {
 // Connect to the database
 $mysqli = require __DIR__ . "../../../../backend/config/database.php";
 
-
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Collect and sanitize form data
     $name = mysqli_real_escape_string($mysqli, $_POST['name']);
     $category_id = (int) $_POST['category_id'];
-    $price = (float) $_POST['price'];
+    $base_price = (float) $_POST['base_price'];  // Changed from price to base_price
     $description = mysqli_real_escape_string($mysqli, $_POST['description']);
     $quantity = (int) $_POST['quantity'];
     $status = mysqli_real_escape_string($mysqli, $_POST['status']);
     
     // Handle file upload
-    $image = null;
-    if (isset($_FILES['image']) && $_FILES['image']['error'] == UPLOAD_ERR_OK) {
-        $imageTmpName = $_FILES['image']['tmp_name'];
-        $imageName = $_FILES['image']['name'];
-        $imagePath = '/Kapelicious/frontend/assets/products/' . basename($imageName);
-        move_uploaded_file($imageTmpName, $imagePath);
-        $image = $imagePath; // Store image path
+$image = null;
+if (isset($_FILES['image']) && $_FILES['image']['error'] == UPLOAD_ERR_OK) {
+    // Define the directory for saving uploaded files on the server (file system path)
+    $uploadDir = __DIR__ . '/../../../frontend/assets/products/'; // Going up 3 levels to reach frontend/assets/products/
+    $imageTmpName = $_FILES['image']['tmp_name'];
+    $imageName = basename($_FILES['image']['name']);
+    $targetFilePath = $uploadDir . $imageName;
+
+    // Ensure the directory exists
+    if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0777, true);
     }
 
-    // Insert the new product into the database
-    $insertSql = "INSERT INTO products (name, category_id, price, description, quantity, status, image)
-                  VALUES ('$name', '$category_id', '$price', '$description', '$quantity', '$status', '$image')";
-
-    if ($mysqli->query($insertSql)) {
-        // Redirect after success
-        header('Location: manage-product.php');
-        exit;
+    // Move the uploaded file to the target directory
+    if (move_uploaded_file($imageTmpName, $targetFilePath)) {
+        // Save the web-accessible path to the database (relative to the web root)
+        $image = '/Kapelicious/frontend/assets/products/' . $imageName;
     } else {
-        echo "Error: " . $mysqli->error;
+        echo "Failed to upload image.";
+        exit;
     }
+}
+
+// Insert the new product into the database (handling both with and without image)
+$insertSql = "INSERT INTO products (name, category_id, base_price, description, quantity, status, image)
+              VALUES ('$name', '$category_id', '$base_price', '$description', '$quantity', '$status', '$image')";
+
+if ($mysqli->query($insertSql)) {
+    // Redirect after success
+    header('Location: manage-product.php');
+    exit;
+} else {
+    echo "Error: " . $mysqli->error;
+}
+
 }
 
 // Handle search and category filter
@@ -66,7 +80,6 @@ $sql = "SELECT products.*, categories.name AS category_name
         LIMIT $limit OFFSET $offset";
 
 $productResult = $mysqli->query($sql);
-
 
 // Get total number of products for pagination
 $totalSql = "SELECT COUNT(*) FROM products 
@@ -168,7 +181,7 @@ $totalPages = ceil($totalProducts / $limit);
                         <td class="px-6 py-3">
                             <?= htmlspecialchars(mb_strimwidth($product["description"], 0, 50, "...")) ?></td>
                         <td class="px-6 py-3"><?= htmlspecialchars($product["category_name"]) ?></td>
-                        <td class="px-6 py-3"><?= htmlspecialchars($product["price"]) ?></td>
+                        <td class="px-6 py-3"><?= htmlspecialchars($product["base_price"]) ?></td>
                         <td class="px-6 py-3"><?= htmlspecialchars($product["quantity"]) ?></td>
                         <td class="px-6 py-3"><?= htmlspecialchars($product["status"]) ?></td>
                         <td class="px-6 py-3">
@@ -225,10 +238,10 @@ $totalPages = ceil($totalProducts / $limit);
                         required>
                         <option value="">Select a Category</option>
                         <?php 
-                    // Fetch categories for the Add Product Form
-                    $categorySqlForForm = "SELECT * FROM categories";
-                    $categoryResultForForm = $mysqli->query($categorySqlForForm);
-                    while ($category = $categoryResultForForm->fetch_assoc()): ?>
+            // Fetch categories for the Add Product Form
+            $categorySqlForForm = "SELECT * FROM categories";
+            $categoryResultForForm = $mysqli->query($categorySqlForForm);
+            while ($category = $categoryResultForForm->fetch_assoc()): ?>
                         <option value="<?= $category['category_id'] ?>"><?= htmlspecialchars($category['name']) ?>
                         </option>
                         <?php endwhile; ?>
@@ -236,10 +249,9 @@ $totalPages = ceil($totalProducts / $limit);
                 </div>
 
                 <div>
-                    <label for="productPrice" class="text-lg font-medium text-dark-brown">Price:</label>
-                    <input type="number" name="price" id="productPrice"
-                        class="w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                        required>
+                    <label for="productBasePrice" class="text-lg font-medium text-dark-brown">Base Price:</label>
+                    <input type="number" name="base_price" id="productBasePrice" class="w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2
+                    focus:ring-green-500" required>
                 </div>
 
                 <div>
@@ -279,6 +291,7 @@ $totalPages = ceil($totalProducts / $limit);
                         class="bg-gray-500 text-white py-2 px-6 rounded-md hover:bg-gray-600 transition duration-300">Close</button>
                 </div>
             </form>
+
         </div>
     </div>
 
@@ -313,7 +326,7 @@ $totalPages = ceil($totalProducts / $limit);
         if (productIdToDelete !== null) {
             // Now the delete action will work by calling delete-product.php with the correct product_id
             window.location.href =
-                `/Kapelicious/frontend/admin/pages/delete-product.php?product_id=${productIdToDelete}`;
+                '/Kapelicious/frontend/admin/functions/delete-product.php?product_id=' + productIdToDelete;
         }
     });
 
@@ -332,7 +345,8 @@ $totalPages = ceil($totalProducts / $limit);
             if (confirmDelete) {
                 // Pass the selected product IDs to the delete action
                 window.location.href =
-                    `/Kapelicious/frontend/admin/pages/delete-product.php?product_ids=${selectedProductIds.join(',')}`;
+                    '/Kapelicious/frontend/admin/functions/delete-product.php?product_id=' + selectedProductIds.join(
+                        ',');
             }
         } else {
             alert('Please select at least one product to delete.');
@@ -374,7 +388,6 @@ $totalPages = ceil($totalProducts / $limit);
         });
     }
     </script>
-
 </body>
 
 </html>

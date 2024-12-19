@@ -17,27 +17,42 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $description = mysqli_real_escape_string($mysqli, $_POST['description']);
     $status = mysqli_real_escape_string($mysqli, $_POST['status']);
     
-    // Handle file upload
-    $image = null;
-    if (isset($_FILES['image']) && $_FILES['image']['error'] == UPLOAD_ERR_OK) {
-        $imageTmpName = $_FILES['image']['tmp_name'];
-        $imageName = $_FILES['image']['name'];
-        $imagePath = '/Kapelicious/frontend/assets/categories/' . basename($imageName);
-        move_uploaded_file($imageTmpName, $imagePath);
-        $image = $imagePath; // Store image path
+ // Handle file upload
+$image = null;
+if (isset($_FILES['image']) && $_FILES['image']['error'] == UPLOAD_ERR_OK) {
+    // Define the directory for saving uploaded files on the server (file system path)
+    $uploadDir = __DIR__ . '/../../../frontend/assets/categories/'; // Going up 3 levels to reach frontend/assets/categories/
+    $imageName = basename($_FILES['image']['name']);
+    $targetFilePath = $uploadDir . $imageName;
+
+    // Ensure the directory exists
+    if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0777, true);
     }
 
-    // Insert the new category into the database
-    $insertSql = "INSERT INTO categories (name, description, status, image)
-                  VALUES ('$name', '$description', '$status', '$image')";
-
-    if ($mysqli->query($insertSql)) {
-        // Redirect after success
-        header('Location: manage-category.php');
-        exit;
+    // Move the uploaded file to the target directory
+    if (move_uploaded_file($_FILES['image']['tmp_name'], $targetFilePath)) {
+        // Save the web-accessible path to the database (relative to the web root)
+        $image = '/Kapelicious/frontend/assets/categories/' . $imageName;
     } else {
-        echo "Error: " . $mysqli->error;
+        echo "Failed to upload image.";
+        exit;
     }
+}
+
+
+// Insert the new category into the database
+$insertSql = "INSERT INTO categories (name, description, status, image)
+              VALUES ('$name', '$description', '$status', '$image')";
+
+if ($mysqli->query($insertSql)) {
+    // Redirect after success
+    header('Location: manage-category.php');
+    exit;
+} else {
+    echo "Error: " . $mysqli->error;
+}
+
 }
 
 // Handle search
@@ -48,7 +63,6 @@ $limit = 7;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $offset = ($page - 1) * $limit;
 
-// Fetch categories with search filter
 $sql = "SELECT * FROM categories 
         WHERE name LIKE '%$search%' 
         LIMIT $limit OFFSET $offset";
@@ -61,6 +75,7 @@ $totalSql = "SELECT COUNT(*) FROM categories
 $totalResult = $mysqli->query($totalSql);
 $totalCategories = $totalResult->fetch_row()[0];
 $totalPages = ceil($totalCategories / $limit);
+
 ?>
 
 <!DOCTYPE html>
@@ -198,10 +213,11 @@ $totalPages = ceil($totalCategories / $limit);
                     <select name="status" id="categoryStatus"
                         class="w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                         required>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
+                        <option value="available">Available</option>
+                        <option value="unavailable">Unavailable</option>
                     </select>
                 </div>
+
 
                 <div>
                     <label for="categoryImage" class="text-lg font-medium text-dark-brown">Image:</label>
@@ -239,6 +255,7 @@ $totalPages = ceil($totalCategories / $limit);
         document.getElementById('deleteCategoryModal').classList.remove('hidden');
     }
 
+
     // Close the delete modal when the cancel button is clicked
     document.getElementById('closeDeleteCategoryModalBtn').addEventListener('click', function() {
         document.getElementById('deleteCategoryModal').classList.add('hidden');
@@ -249,7 +266,7 @@ $totalPages = ceil($totalCategories / $limit);
         if (categoryIdToDelete !== null) {
             // Now the delete action will work by calling delete-category.php with the correct category_id
             window.location.href =
-                `/Kapelicious/frontend/admin/pages/delete-category.php?category_id=${categoryIdToDelete}`;
+                `/Kapelicious/frontend/admin/functions/delete-category.php?category_id=${categoryIdToDelete}`;
         }
     });
 
@@ -263,17 +280,16 @@ $totalPages = ceil($totalCategories / $limit);
         });
 
         if (selectedCategoryIds.length > 0) {
-            // Ask for confirmation before deleting
             const confirmDelete = confirm('Are you sure you want to delete the selected categories?');
             if (confirmDelete) {
-                // Pass the selected category IDs to the delete action
                 window.location.href =
-                    `/Kapelicious/frontend/admin/pages/delete-category.php?category_ids=${selectedCategoryIds.join(',')}`;
+                    `/Kapelicious/frontend/admin/functions/delete-category.php?category_id=${selectedCategoryIds.join(',')}`;
             }
         } else {
             alert('Please select at least one category to delete.');
         }
     }
+
 
     // Show and hide the add category popup
     document.getElementById('addCategoryBtn').addEventListener('click', function() {
