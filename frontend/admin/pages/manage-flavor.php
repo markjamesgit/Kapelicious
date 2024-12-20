@@ -108,6 +108,7 @@ $totalPages = ceil($totalFlavors / $limit);
         }
     }
     </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 
 <body class="min-h-screen bg-light-gray flex">
@@ -158,7 +159,7 @@ $totalPages = ceil($totalFlavors / $limit);
                         <th class="px-6 py-3 text-lg font-semibold">Product Name</th>
                         <th class="px-6 py-3 text-lg font-semibold">Name</th>
                         <th class="px-6 py-3 text-lg font-semibold">Description</th>
-                        <th class="px-6 py-3 text-lg font-semibold">Additional Price</th>
+                        <th class="px-6 py-3 text-lg font-semibold">Price</th>
                         <th class="px-6 py-3 text-lg font-semibold">Quantity</th>
                         <th class="px-6 py-3 text-lg font-semibold">Image</th>
                         <th class="px-6 py-3 text-lg font-semibold">Status</th>
@@ -181,17 +182,17 @@ $totalPages = ceil($totalFlavors / $limit);
                         <td class="px-6 py-3">
                             <?php if (!empty($flavor["image"])): ?>
                             <img src="<?= htmlspecialchars($flavor["image"]) ?>" alt="Flavor Image"
-                                class="w-16 h-16 object-cover rounded-lg" />
+                                class="w-12 h-12 object-cover rounded-lg" />
                             <?php else: ?>
                             <span class="text-gray-500">No image</span>
                             <?php endif; ?>
                         </td>
                         <td class="px-6 py-3"><?= htmlspecialchars($flavor["status"]) ?></td>
                         <td class="px-6 py-3 space-x-2">
-                            <button onclick="editFlavor(<?= $flavor['flavor_id'] ?>)"
-                                class="bg-yellow-500 text-white p-2 rounded-full">Edit</button>
-                            <button onclick="deleteFlavor(<?= $flavor['flavor_id'] ?>)"
-                                class="bg-red-500 text-white p-2 rounded-full">Delete</button>
+                            <button onclick="editFlavor(<?= $flavor['flavor_id'] ?>)" class="text-yellow-500 p-2 "><i
+                                    class="fas fa-edit"></i></button>
+                            <button onclick="deleteFlavor(<?= $flavor['flavor_id'] ?>)" class="text-red-500 p-2"><i
+                                    class="fas fa-trash"></i></button>
                         </td>
                     </tr>
                     <?php endwhile; ?>

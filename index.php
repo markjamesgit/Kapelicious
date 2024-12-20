@@ -118,24 +118,24 @@ while ($addon = $addonResult->fetch_assoc()) {
             <!-- Categories -->
             <?php while ($category = $categoryResult->fetch_assoc()): ?>
             <div class="category-section mb-16">
-                <h4 class="text-2xl font-semibold text-white mb-6"><?= htmlspecialchars($category['name']) ?></h4>
+                <h4 class="text-2xl font-semibold text-beige mb-6"><?= htmlspecialchars($category['name']) ?></h4>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     <?php
                     // Fetch products for this category (limit 6 items)
-                    $productSql = "SELECT * FROM products WHERE category_id = {$category['category_id']} LIMIT 6";
+                    $productSql = "SELECT * FROM products WHERE category_id = {$category['category_id']} AND status = 'available' LIMIT 6";
                     $productResult = $mysqli->query($productSql);
                     while ($product = $productResult->fetch_assoc()):
                     ?>
 
-                    <div class="menu-item bg-white rounded-lg overflow-hidden w-74 flex flex-col justify-between">
+                    <div class="menu-item bg-white rounded-lg overflow-hidden shadow-lg flex flex-col justify-between">
                         <img src="<?= htmlspecialchars($product['image']) ?>"
                             alt="<?= htmlspecialchars($product['name']) ?>" class="w-full h-60 object-cover mb-4">
-                        <div class="p-3 flex-grow">
-                            <h4 class="text-3xl font-bold text-dark-brown"><?= htmlspecialchars($product['name']) ?>
-                            </h4>
-                            <p class="text-sm text-gray-700"><?= htmlspecialchars($product['description']) ?></p>
-                            <p class="text-base font-semibold text-dark-brown mt-2">
+                        <div class="p-4 flex-grow">
+                            <h4 class="text-3xl font-bold text-dark-brown mb-2">
+                                <?= htmlspecialchars($product['name']) ?></h4>
+                            <p class="text-sm text-gray-700 mb-2"><?= htmlspecialchars($product['description']) ?></p>
+                            <p class="text-base font-semibold text-dark-brown mb-4">
                                 ₱<?= number_format($product['base_price'], 2) ?>
                             </p>
 
@@ -160,9 +160,9 @@ while ($addon = $addonResult->fetch_assoc()) {
                                 }
                             }">
                                 <!-- Variant Radio Buttons -->
-                                <label class="text-sm font-bold text-dark-brown">Available Variants:</label>
+                                <label class="text-sm font-bold text-dark-brown">Variants:</label>
                                 <?php if (isset($variantsByProduct[$product['product_id']])): ?>
-                                <div class="grid grid-cols-2 gap-2">
+                                <div class="grid grid-cols-2 gap-2 mb-4">
                                     <?php foreach ($variantsByProduct[$product['product_id']] as $variant): ?>
                                     <div class="variant-item bg-light-gray p-2 rounded-md flex items-center">
                                         <input type="radio" id="variant-<?= $variant['variant_id'] ?>"
@@ -178,7 +178,6 @@ while ($addon = $addonResult->fetch_assoc()) {
                                         <label for="variant-<?= $variant['variant_id'] ?>"
                                             class="text-sm font-semibold"><?= htmlspecialchars($variant['value']) ?></label>
                                     </div>
-
                                     <?php endforeach; ?>
                                 </div>
                                 <?php else: ?>
@@ -186,9 +185,9 @@ while ($addon = $addonResult->fetch_assoc()) {
                                 <?php endif; ?>
 
                                 <!-- Add-ons -->
-                                <label class="text-sm font-bold text-dark-brown mt-4">Available Add-ons:</label>
+                                <label class="text-sm font-bold text-dark-brown mt-4">Add-ons:</label>
                                 <?php if (isset($addonsByProduct[$product['product_id']])): ?>
-                                <div class="grid grid-cols-2 gap-2">
+                                <div class="grid grid-cols-2 gap-2 mb-4">
                                     <?php foreach ($addonsByProduct[$product['product_id']] as $addon): ?>
                                     <div class="addon-item bg-light-gray p-2 rounded-md flex items-center">
                                         <input type="checkbox" class="addon-checkbox" :value="{
@@ -221,14 +220,14 @@ while ($addon = $addonResult->fetch_assoc()) {
                                 <p class="text-sm text-gray-500">No available add-ons for this product.</p>
                                 <?php endif; ?>
 
-                                <!-- Flavors (Radio Buttons) -->
-                                <label class="text-sm font-bold text-dark-brown mt-4">Available Flavors:</label>
+                                <!-- Flavors-->
+                                <label class="text-sm font-bold text-dark-brown mt-4">Flavors:</label>
                                 <?php
-            $flavorSql = "SELECT * FROM flavors WHERE product_id = {$product['product_id']} AND status = 'available'";
-            $flavorResult = $mysqli->query($flavorSql);
-            if ($flavorResult->num_rows > 0):
-            ?>
-                                <div class="grid grid-cols-2 gap-2">
+                                $flavorSql = "SELECT * FROM flavors WHERE product_id = {$product['product_id']} AND status = 'available'";
+                                $flavorResult = $mysqli->query($flavorSql);
+                                if ($flavorResult->num_rows > 0):
+                                ?>
+                                <div class="grid grid-cols-2 gap-2 mb-4">
                                     <?php while ($flavor = $flavorResult->fetch_assoc()): ?>
                                     <div class="flavor-item bg-light-gray p-2 rounded-md flex items-center">
                                         <input type="radio" name="flavor" :value="{
@@ -257,15 +256,33 @@ while ($addon = $addonResult->fetch_assoc()) {
                             </div>
 
                         </div>
-                        <button
-                            class="bg-beige text-dark-brown font-bold px-4 py-4 rounded-tl-none rounded-tr-none rounded-bl-none rounded-br-none flex-shrink-0 hover:bg-green-700">
-                            Add to Cart
-                        </button>
+                        <div class="flex flex-row justify-between">
+                            <button
+                                class="bg-beige text-dark-brown font-bold px-4 py-4 rounded-none hover:bg-green-700 transition w-full">
+                                Add to Cart
+                            </button>
+                            <button
+                                class="bg-green-700 text-white font-bold px-4 py-4 rounded-none hover:bg-green-900 transition w-full">
+                                Buy Now
+                            </button>
+                        </div>
                     </div>
-
-
                     <?php endwhile; ?>
                 </div>
+                <?php
+                // Check if there are more products in this category
+                $moreProductsSql = "SELECT COUNT(*) AS total_products FROM products WHERE category_id = {$category['category_id']} AND status = 'available'";
+                $moreProductsResult = $mysqli->query($moreProductsSql);
+                $moreProducts = $moreProductsResult->fetch_assoc();
+    
+                if ($moreProducts['total_products'] > 6): ?>
+                <div class="text-center mt-6">
+                    <a href="/Kapelicious/frontend/pages/php/see-more-products.php?category_id=<?= $category['category_id'] ?>"
+                        class="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition">
+                        See More
+                    </a>
+                </div>
+                <?php endif; ?>
             </div>
             <?php endwhile; ?>
         </section>

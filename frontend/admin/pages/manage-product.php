@@ -112,6 +112,7 @@ $totalPages = ceil($totalProducts / $limit);
         }
     }
     </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 
 <body class="min-h-screen bg-light-gray flex">
@@ -146,7 +147,7 @@ $totalPages = ceil($totalProducts / $limit);
 
         <!-- Add a Delete Selected Button -->
         <div class="flex justify-between items-center mb-6">
-            <button onclick="deleteSelectedProducts()" class="bg-red-500 text-white p-3 rounded-full">
+            <button onclick="deleteSelectedProducts()" class="bg-red-500 text-white px-6 py-2 rounded-md">
                 Delete Selected
             </button>
         </div>
@@ -193,10 +194,10 @@ $totalPages = ceil($totalProducts / $limit);
                             <?php endif; ?>
                         </td>
                         <td class="px-6 py-3 space-x-2">
-                            <button onclick="editProduct(<?= $product['product_id'] ?>)"
-                                class="bg-yellow-500 text-white p-2 rounded-full">Edit</button>
-                            <button onclick="deleteProduct(<?= $product['product_id'] ?>)"
-                                class="bg-red-500 text-white p-2 rounded-full">Delete</button>
+                            <button onclick="editProduct(<?= $product['product_id'] ?>)" class="text-yellow-500 p-2 "><i
+                                    class="fas fa-edit"></i></button>
+                            <button onclick="deleteProduct(<?= $product['product_id'] ?>)" class="text-red-500 p-2"><i
+                                    class="fas fa-trash"></i></button>
                         </td>
                     </tr>
                     <?php endwhile; ?>

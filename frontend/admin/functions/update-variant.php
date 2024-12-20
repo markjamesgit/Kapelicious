@@ -18,9 +18,10 @@ if ($mysqli->connect_error) {
 $variantId = $_POST['variant_id']; 
 $type = $_POST['type'];
 $value = $_POST['value'];
-$additionalPrice = $_POST['price']; 
+$additionalPrice = $_POST['additional_price']; 
 $quantity = $_POST['quantity'];
 $status = $_POST['status'];
+$productId = $_POST['product_id'];  // Added to get the associated product ID
 $image = $_FILES['image'] ?? null;
 
 // Check if the variant_id exists
@@ -35,17 +36,18 @@ if ($checkStmt->num_rows === 0) {
     exit;
 }
 
-// Prepare the SQL query to update the variant (excluding image for now)
+// Prepare the SQL query to update the variant (including product_id and excluding image for now)
 $updateSql = "UPDATE variants SET 
                 type = ?, 
                 value = ?, 
                 additional_price = ?, 
                 quantity = ?, 
                 status = ?, 
+                product_id = ?,  
                 updated_at = CURRENT_TIMESTAMP
               WHERE variant_id = ?";
 $stmt = $mysqli->prepare($updateSql);
-$stmt->bind_param("ssdisi", $type, $value, $additionalPrice, $quantity, $status, $variantId);
+$stmt->bind_param("ssdisii", $type, $value, $additionalPrice, $quantity, $status, $productId, $variantId);  // Bind product_id
 
 // Check if the update query executes successfully
 if (!$stmt->execute()) {

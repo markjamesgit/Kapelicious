@@ -73,7 +73,7 @@ while ($flavor = $flavorResult->fetch_assoc()) {
 <body class="min-h-screen flex flex-col">
     <?php include '../../includes/header.php'; ?>
 
-    <div class="container mx-auto max-w-screen-lg py-10">
+    <div class="container mx-auto max-w-screen-2xl py-10">
         <!-- Back Button -->
         <a href="javascript:history.back()" class="inline-block mb-6 text-blue-600 hover:text-blue-800 text-lg">
             &larr; Back to Categories
@@ -85,82 +85,136 @@ while ($flavor = $flavorResult->fetch_assoc()) {
         </h3>
 
         <!-- Product Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <?php while ($product = $productResult->fetch_assoc()): ?>
-            <div class="menu-item bg-white rounded-lg shadow-md hover:shadow-lg overflow-hidden transition-all">
+            <div class="menu-item bg-white rounded-lg overflow-hidden shadow-lg flex flex-col justify-between">
                 <img src="<?= htmlspecialchars($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>"
-                    class="w-full h-56 object-cover mb-4">
-                <div class="p-6">
-                    <!-- Product Name -->
-                    <h4 class="text-lg font-semibold text-dark-brown mb-2"><?= htmlspecialchars($product['name']) ?>
-                    </h4>
-
-                    <!-- Product Description -->
-                    <p class="text-sm text-gray-600 mb-4"><?= htmlspecialchars($product['description']) ?></p>
-
-                    <!-- Base Price -->
-                    <p class="text-xl font-bold text-dark-brown mb-4">$<?= number_format($product['base_price'], 2) ?>
+                    class="w-full h-60 object-cover mb-4">
+                <div class="p-4 flex-grow">
+                    <h4 class="text-3xl font-bold text-dark-brown mb-2">
+                        <?= htmlspecialchars($product['name']) ?></h4>
+                    <p class="text-sm text-gray-700 mb-2"><?= htmlspecialchars($product['description']) ?></p>
+                    <p class="text-base font-semibold text-dark-brown mb-4">
+                        ₱<?= number_format($product['base_price'], 2) ?>
                     </p>
 
-                    <!-- Variant Buttons -->
-                    <div class="mb-4" x-data="{ selectedVariant: null, price: <?= $product['base_price'] ?> }">
-                        <label class="text-sm font-bold text-dark-brown">Available Variants:</label>
+                    <div class="mt-4" x-data="{
+            selectedVariant: null, 
+            price: <?= $product['base_price'] ?>, 
+            selectedAddons: [], 
+            selectedFlavor: null,
+            updateTotalPrice() {
+                let total = <?= $product['base_price'] ?>;
+                if (this.selectedVariant) {
+                    total += parseFloat(this.selectedVariant.additional_price);
+                }
+                this.selectedAddons.forEach(addon => {
+                    total += parseFloat(addon.additional_price);
+                });
+                if (this.selectedFlavor) {
+                    total += parseFloat(this.selectedFlavor.additional_price);
+                }
+                this.price = total;
+            }
+        }">
+                        <label class="text-sm font-bold text-dark-brown">Variants:</label>
                         <?php if (isset($variantsByProduct[$product['product_id']])): ?>
-                        <div class="flex flex-wrap gap-2">
+                        <div class="grid grid-cols-2 gap-2 mb-4">
                             <?php foreach ($variantsByProduct[$product['product_id']] as $variant): ?>
-                            <button class="bg-beige text-dark-brown px-4 py-2 rounded-md text-sm"
-                                @click="selectedVariant = '<?= htmlspecialchars($variant['value']) ?>'; price = <?= $variant['additional_price'] + $product['base_price'] ?>;">
-                                <?= htmlspecialchars($variant['value']) ?>
-                            </button>
+                            <div class="variant-item bg-light-gray p-2 rounded-md flex items-center">
+                                <input type="radio" id="variant-<?= $variant['variant_id'] ?>"
+                                    name="variant-<?= $product['product_id'] ?>" :value="{
+                               id: <?= $variant['variant_id'] ?>, 
+                               value: '<?= addslashes($variant['value']) ?>', 
+                               additional_price: <?= $variant['additional_price'] ?? 0 ?>
+                           }" @change="selectedVariant = {
+                               id: <?= $variant['variant_id'] ?>, 
+                               value: '<?= addslashes($variant['value']) ?>', 
+                               additional_price: <?= $variant['additional_price'] ?? 0 ?>
+                           }; updateTotalPrice()" class="mr-2">
+                                <label for="variant-<?= $variant['variant_id'] ?>"
+                                    class="text-sm font-semibold"><?= htmlspecialchars($variant['value']) ?></label>
+                            </div>
                             <?php endforeach; ?>
                         </div>
+                        <?php else: ?>
+                        <p class="text-sm text-gray-500">No available variant for this product.</p>
                         <?php endif; ?>
-                        <p class="mt-2 text-lg font-semibold">Price: $<span x-text="price.toFixed(2)"></span></p>
-                    </div>
-                    <!-- Addons Buttons -->
-                    <div class="mt-4">
-                        <label class="text-sm font-bold text-dark-brown">Available Add-ons:</label>
+
+                        <label class="text-sm font-bold text-dark-brown mt-4">Add-ons:</label>
                         <?php if (isset($addonsByProduct[$product['product_id']])): ?>
-                        <div class="grid grid-cols-2 gap-2">
+                        <div class="grid grid-cols-2 gap-2 mb-4">
                             <?php foreach ($addonsByProduct[$product['product_id']] as $addon): ?>
                             <div class="addon-item bg-light-gray p-2 rounded-md flex items-center">
+                                <input type="checkbox" class="addon-checkbox" :value="{
+                        id: <?= $addon['addon_id'] ?>, 
+                        name: '<?= addslashes($addon['name']) ?>', 
+                        additional_price: <?= $addon['additional_price'] ?>
+                    }" @change="
+                        if (event.target.checked) {
+                            selectedAddons.push({
+                                id: <?= $addon['addon_id'] ?>,
+                                name: '<?= addslashes($addon['name']) ?>',
+                                additional_price: <?= $addon['additional_price'] ?>
+                            });
+                        } else {
+                            selectedAddons = selectedAddons.filter(addon => addon.id !== <?= $addon['addon_id'] ?>);
+                        }
+                        updateTotalPrice()">
                                 <img src="<?= htmlspecialchars($addon['image']) ?>"
                                     alt="<?= htmlspecialchars($addon['name']) ?>" class="w-10 h-10 rounded-full mr-2">
                                 <div>
                                     <p class="text-sm font-semibold"><?= htmlspecialchars($addon['name']) ?></p>
                                     <p class="text-xs font-bold text-dark-brown">
-                                        +$<?= number_format($addon['additional_price'], 2) ?></p>
+                                        +₱<?= number_format($addon['additional_price'], 2) ?></p>
                                 </div>
                             </div>
                             <?php endforeach; ?>
                         </div>
+                        <?php else: ?>
+                        <p class="text-sm text-gray-500">No available add-ons for this product.</p>
                         <?php endif; ?>
-                    </div>
-                    <!-- Flavors Buttons -->
-                    <div class="mt-4">
-                        <label class="text-sm font-bold text-dark-brown">Available Flavors:</label>
+
+                        <label class="text-sm font-bold text-dark-brown mt-4">Flavors:</label>
                         <?php if (isset($flavorsByProduct[$product['product_id']])): ?>
-                        <div class="grid grid-cols-2 gap-2">
+                        <div class="grid grid-cols-2 gap-2 mb-4">
                             <?php foreach ($flavorsByProduct[$product['product_id']] as $flavor): ?>
                             <div class="flavor-item bg-light-gray p-2 rounded-md flex items-center">
+                                <input type="radio" name="flavor" :value="{
+                        id: <?= $flavor['flavor_id'] ?>, 
+                        name: '<?= addslashes($flavor['name']) ?>', 
+                        additional_price: <?= $flavor['additional_price'] ?>
+                    }" @change="selectedFlavor = {
+                        id: <?= $flavor['flavor_id'] ?>, 
+                        name: '<?= addslashes($flavor['name']) ?>', 
+                        additional_price: <?= $flavor['additional_price'] ?>
+                    }; updateTotalPrice()">
                                 <img src="<?= htmlspecialchars($flavor['image']) ?>"
                                     alt="<?= htmlspecialchars($flavor['name']) ?>" class="w-10 h-10 rounded-full mr-2">
                                 <p class="text-sm font-semibold"><?= htmlspecialchars($flavor['name']) ?></p>
                             </div>
                             <?php endforeach; ?>
                         </div>
+                        <?php else: ?>
+                        <p class="text-sm text-gray-500">No available flavors for this product.</p>
                         <?php endif; ?>
-                    </div>
-                    <!-- Buttons -->
-                    <div class="flex justify-between gap-4">
-                        <button class="w-full bg-dark-brown text-white py-2 rounded-md hover:bg-brown-light transition">
-                            Add to Cart
-                        </button>
-                        <button class="w-full bg-green-500 text-white py-2 rounded-md hover:bg-green-600 transition">Buy
-                            Now</button>
+
+                        <p class="mt-4 text-base font-semibold">Total Price: ₱<span x-text="price.toFixed(2)"></span>
+                        </p>
                     </div>
                 </div>
+                <div class="flex flex-row justify-between">
+                    <button
+                        class="bg-beige text-dark-brown font-bold px-4 py-4 rounded-none hover:bg-green-700 transition w-full">
+                        Add to Cart
+                    </button>
+                    <button
+                        class="bg-green-700 text-white font-bold px-4 py-4 rounded-none hover:bg-green-900 transition w-full">
+                        Buy Now
+                    </button>
+                </div>
             </div>
+
             <?php endwhile; ?>
         </div>
     </div>

@@ -27,10 +27,11 @@ if (isset($_SESSION["user_id"])) {
 
     // Fetch the user info from the result using the fetch_assoc method
     $sidebarUser = $sidebarResult->fetch_assoc();
-    
 }
 ?>
 
+<!-- Add FontAwesome CDN -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
 <aside class="bg-dark-brown w-64 min-h-screen text-light-gray flex flex-col">
     <!-- Profile Section -->
@@ -61,45 +62,76 @@ if (isset($_SESSION["user_id"])) {
     <!-- Sidebar Links -->
     <nav class="flex-grow">
         <ul class="space-y-2 px-4 mt-4">
+            <!-- Dashboard -->
             <li><a href="dashboard-content.php" target="contentFrame"
-                    class="block px-4 py-2 rounded-md hover:bg-beige">Dashboard</a></li>
+                    class="block px-4 py-2 rounded-md hover:bg-beige flex items-center">
+                    <i class="fas fa-tachometer-alt mr-3"></i> Dashboard
+                </a>
+            </li>
 
             <!-- Manage Menu Dropdown -->
             <li class="relative">
                 <button
                     class="block w-full px-4 py-2 rounded-md hover:bg-beige text-left flex justify-between items-center"
                     onclick="toggleDropdown('manage-menu-dropdown')">
-                    Manage Menu
+                    <i class="fas fa-cogs mr-3"></i> Manage Menu
                     <span class="text-sm">&#9660;</span>
                 </button>
                 <ul id="manage-menu-dropdown" class="hidden space-y-2 bg-dark-brown pl-6">
                     <li><a href="/Kapelicious/frontend/admin/pages/manage-category.php"
-                            class="block px-4 py-2 rounded-md hover:bg-beige">Category List</a></li>
+                            class="block px-4 py-2 rounded-md hover:bg-beige"><i class="fas fa-list mr-3"></i> Category
+                            List</a></li>
                     <li><a href="/Kapelicious/frontend/admin/pages/manage-product.php"
-                            class="block px-4 py-2 rounded-md hover:bg-beige">Product List</a></li>
+                            class="block px-4 py-2 rounded-md hover:bg-beige"><i class="fas fa-box mr-3"></i> Product
+                            List</a></li>
                     <li><a href="/Kapelicious/frontend/admin/pages/manage-variant.php"
-                            class="block px-4 py-2 rounded-md hover:bg-beige">Variant List</a></li>
+                            class="block px-4 py-2 rounded-md hover:bg-beige"><i class="fas fa-cogs mr-3"></i> Variant
+                            List</a></li>
                     <li><a href="/Kapelicious/frontend/admin/pages/manage-add-ons.php"
-                            class="block px-4 py-2 rounded-md hover:bg-beige">Add Ons List</a></li>
+                            class="block px-4 py-2 rounded-md hover:bg-beige"><i class="fas fa-plus-circle mr-3"></i>
+                            Add Ons List</a></li>
                     <li><a href="/Kapelicious/frontend/admin/pages/manage-flavor.php"
-                            class="block px-4 py-2 rounded-md hover:bg-beige">Flavors List</a></li>
+                            class="block px-4 py-2 rounded-md hover:bg-beige"><i class="fas fa-palette mr-3"></i>
+                            Flavors List</a></li>
                 </ul>
             </li>
 
-            <li><a href="orders.php" target="contentFrame" class="block px-4 py-2 rounded-md hover:bg-beige">Orders</a>
+            <!-- Orders -->
+            <li><a href="orders.php" target="contentFrame"
+                    class="block px-4 py-2 rounded-md hover:bg-beige flex items-center">
+                    <i class="fas fa-clipboard-list mr-3"></i> Orders
+                </a>
             </li>
+
+            <!-- Reports -->
             <li><a href="reports.php" target="contentFrame"
-                    class="block px-4 py-2 rounded-md hover:bg-beige">Reports</a></li>
+                    class="block px-4 py-2 rounded-md hover:bg-beige flex items-center">
+                    <i class="fas fa-chart-line mr-3"></i> Reports
+                </a>
+            </li>
+
+            <!-- Settings -->
             <li><a href="/Kapelicious/frontend/admin/pages/settings.php"
-                    class="block px-4 py-2 rounded-md hover:bg-beige">Settings</a></li>
-            <li><a href="pos.php" target="contentFrame" class="block px-4 py-2 rounded-md hover:bg-beige">POS</a></li>
+                    class="block px-4 py-2 rounded-md hover:bg-beige flex items-center">
+                    <i class="fas fa-cogs mr-3"></i> Settings
+                </a>
+            </li>
+
+            <!-- POS -->
+            <li><a href="pos.php" target="contentFrame"
+                    class="block px-4 py-2 rounded-md hover:bg-beige flex items-center">
+                    <i class="fas fa-cash-register mr-3"></i> POS
+                </a>
+            </li>
         </ul>
     </nav>
 
     <!-- Logout -->
     <div class="p-4 border-t border-beige">
         <a href="/Kapelicious/frontend/pages/php/logout.php"
-            class="block text-center bg-red-500 px-4 py-2 rounded-full hover:bg-red-600">Logout</a>
+            class="block text-center bg-red-500 px-4 py-2 rounded-full hover:bg-red-600">
+            <i class="fas fa-sign-out-alt mr-3"></i> Logout
+        </a>
     </div>
 </aside>
 

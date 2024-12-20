@@ -187,10 +187,10 @@ $totalPages = ceil($totalVariants / $limit);
                         </td>
                         <td class="px-6 py-3"><?= htmlspecialchars($variant["status"]) ?></td>
                         <td class="px-6 py-3 space-x-2">
-                            <button onclick="editVariant(<?= $variant['variant_id'] ?>)"
-                                class="bg-yellow-500 text-white p-2 rounded-full">Edit</button>
-                            <button onclick="deleteVariant(<?= $variant['variant_id'] ?>)"
-                                class="bg-red-500 text-white p-2 rounded-full">Delete</button>
+                            <button onclick="editVariant(<?= $variant['variant_id'] ?>)" class="text-yellow-500 p-2 "><i
+                                    class="fas fa-edit"></i></button>
+                            <button onclick="deleteVariant(<?= $variant['variant_id'] ?>)" class="text-red-500 p-2"><i
+                                    class="fas fa-trash"></i></button>
                         </td>
                     </tr>
                     <?php endwhile; ?>

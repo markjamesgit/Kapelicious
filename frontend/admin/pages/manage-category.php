@@ -124,7 +124,7 @@ $totalPages = ceil($totalCategories / $limit);
 
         <!-- Add a Delete Selected Button -->
         <div class="flex justify-between items-center mb-6">
-            <button onclick="deleteSelectedCategories()" class="bg-red-500 text-white p-3 rounded-full">
+            <button onclick="deleteSelectedCategories()" class="bg-red-500 text-white px-6 py-2 rounded-md">
                 Delete Selected
             </button>
         </div>
@@ -165,9 +165,9 @@ $totalPages = ceil($totalCategories / $limit);
                         </td>
                         <td class="px-6 py-3 space-x-2">
                             <button onclick="editCategory(<?= $category['category_id'] ?>)"
-                                class="bg-yellow-500 text-white p-2 rounded-full">Edit</button>
+                                class="text-yellow-500 p-2 "><i class="fas fa-edit"></i></button>
                             <button onclick="deleteCategory(<?= $category['category_id'] ?>)"
-                                class="bg-red-500 text-white p-2 rounded-full">Delete</button>
+                                class="text-red-500 p-2"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>
                     <?php endwhile; ?>
