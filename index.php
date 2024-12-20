@@ -103,8 +103,7 @@ while ($addon = $addonResult->fetch_assoc()) {
                     <p class="text-lg text-dark-brown leading-relaxed max-w-2xl mx-auto">
                         Kapelicious is more than just a platform. We are committed to ensuring timely and effective
                         rescue operations. Our mission is to simplify and manage rescues while offering tools for
-                        seamless
-                        operations. Join us in making a difference!
+                        seamless operations. Join us in making a difference!
                     </p>
                 </div>
             </div>
@@ -128,6 +127,7 @@ while ($addon = $addonResult->fetch_assoc()) {
                     $productResult = $mysqli->query($productSql);
                     while ($product = $productResult->fetch_assoc()):
                     ?>
+
                     <div class="menu-item bg-white rounded-lg overflow-hidden w-74 flex flex-col justify-between">
                         <img src="<?= htmlspecialchars($product['image']) ?>"
                             alt="<?= htmlspecialchars($product['name']) ?>" class="w-full h-60 object-cover mb-4">
@@ -139,30 +139,73 @@ while ($addon = $addonResult->fetch_assoc()) {
                                 ₱<?= number_format($product['base_price'], 2) ?>
                             </p>
 
-                            <!-- Variant Buttons -->
-                            <div class="mt-4" x-data="{ selectedVariant: null, price: <?= $product['base_price'] ?> }">
+                            <!-- Variant Radio Buttons -->
+                            <div class="mt-4" x-data="{
+                                selectedVariant: null, 
+                                price: <?= $product['base_price'] ?>, 
+                                selectedAddons: [], 
+                                selectedFlavor: null,
+                                updateTotalPrice() {
+                                    let total = <?= $product['base_price'] ?>;
+                                    if (this.selectedVariant) {
+                                        total += parseFloat(this.selectedVariant.additional_price);
+                                    }
+                                    this.selectedAddons.forEach(addon => {
+                                        total += parseFloat(addon.additional_price);
+                                    });
+                                    if (this.selectedFlavor) {
+                                        total += parseFloat(this.selectedFlavor.additional_price);
+                                    }
+                                    this.price = total;
+                                }
+                            }">
+                                <!-- Variant Radio Buttons -->
                                 <label class="text-sm font-bold text-dark-brown">Available Variants:</label>
                                 <?php if (isset($variantsByProduct[$product['product_id']])): ?>
-                                <?php foreach ($variantsByProduct[$product['product_id']] as $variant): ?>
-                                <button class="bg-light-gray text-dark-brown px-2 py-1 rounded-md mb-2 mr-2"
-                                    @click="selectedVariant = '<?= htmlspecialchars($variant['value']) ?>'; price = <?= $variant['additional_price'] + $product['base_price'] ?>;">
-                                    <?= htmlspecialchars($variant['value']) ?>
-                                </button>
-                                <?php endforeach; ?>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <?php foreach ($variantsByProduct[$product['product_id']] as $variant): ?>
+                                    <div class="variant-item bg-light-gray p-2 rounded-md flex items-center">
+                                        <input type="radio" id="variant-<?= $variant['variant_id'] ?>"
+                                            name="variant-<?= $product['product_id'] ?>" :value="{
+                                                id: <?= $variant['variant_id'] ?>, 
+                                                value: '<?= addslashes($variant['value']) ?>', 
+                                                additional_price: <?= $variant['additional_price'] ?? 0 ?> 
+                                            }" @change="selectedVariant = {
+                                                id: <?= $variant['variant_id'] ?>, 
+                                                value: '<?= addslashes($variant['value']) ?>', 
+                                                additional_price: <?= $variant['additional_price'] ?? 0 ?>
+                                            }; updateTotalPrice()" class="mr-2">
+                                        <label for="variant-<?= $variant['variant_id'] ?>"
+                                            class="text-sm font-semibold"><?= htmlspecialchars($variant['value']) ?></label>
+                                    </div>
+
+                                    <?php endforeach; ?>
+                                </div>
                                 <?php else: ?>
                                 <p class="text-sm text-gray-500">No available variant for this product.</p>
                                 <?php endif; ?>
-                                <p class="mt-2 text-base font-semibold">Price: ₱<span x-text="price.toFixed(2)"></span>
-                                </p>
-                            </div>
 
-                            <!-- Add-ons -->
-                            <div class="mt-4">
-                                <label class="text-sm font-bold text-dark-brown">Available Add-ons:</label>
+                                <!-- Add-ons -->
+                                <label class="text-sm font-bold text-dark-brown mt-4">Available Add-ons:</label>
                                 <?php if (isset($addonsByProduct[$product['product_id']])): ?>
                                 <div class="grid grid-cols-2 gap-2">
                                     <?php foreach ($addonsByProduct[$product['product_id']] as $addon): ?>
                                     <div class="addon-item bg-light-gray p-2 rounded-md flex items-center">
+                                        <input type="checkbox" class="addon-checkbox" :value="{
+                                            id: <?= $addon['addon_id'] ?>, 
+                                            name: '<?= addslashes($addon['name']) ?>', 
+                                            additional_price: <?= $addon['additional_price'] ?>
+                                        }" @change="
+                                            if (event.target.checked) {
+                                                selectedAddons.push({
+                                                    id: <?= $addon['addon_id'] ?>,
+                                                    name: '<?= addslashes($addon['name']) ?>',
+                                                    additional_price: <?= $addon['additional_price'] ?>
+                                                });
+                                            } else {
+                                                selectedAddons = selectedAddons.filter(addon => addon.id !== <?= $addon['addon_id'] ?>);
+                                            }
+                                            updateTotalPrice()">
                                         <img src="<?= htmlspecialchars($addon['image']) ?>"
                                             alt="<?= htmlspecialchars($addon['name']) ?>"
                                             class="w-10 h-10 rounded-full mr-2">
@@ -177,25 +220,29 @@ while ($addon = $addonResult->fetch_assoc()) {
                                 <?php else: ?>
                                 <p class="text-sm text-gray-500">No available add-ons for this product.</p>
                                 <?php endif; ?>
-                            </div>
 
-                            <!-- Flavors -->
-                            <div class="mt-4">
-                                <label class="text-sm font-bold text-dark-brown">Available Flavors:</label>
+                                <!-- Flavors (Radio Buttons) -->
+                                <label class="text-sm font-bold text-dark-brown mt-4">Available Flavors:</label>
                                 <?php
-                                    // Fetch the available flavors for this product
-                                    $flavorSql = "SELECT * FROM flavors WHERE product_id = {$product['product_id']} AND status = 'available'";
-                                    $flavorResult = $mysqli->query($flavorSql);
-                                    if ($flavorResult->num_rows > 0):
-                                    ?>
+            $flavorSql = "SELECT * FROM flavors WHERE product_id = {$product['product_id']} AND status = 'available'";
+            $flavorResult = $mysqli->query($flavorSql);
+            if ($flavorResult->num_rows > 0):
+            ?>
                                 <div class="grid grid-cols-2 gap-2">
                                     <?php while ($flavor = $flavorResult->fetch_assoc()): ?>
                                     <div class="flavor-item bg-light-gray p-2 rounded-md flex items-center">
-                                        <!-- Flavor Image -->
+                                        <input type="radio" name="flavor" :value="{
+                                            id: <?= $flavor['flavor_id'] ?>, 
+                                            name: '<?= addslashes($flavor['name']) ?>', 
+                                            additional_price: <?= $flavor['additional_price'] ?>
+                                        }" @change="selectedFlavor = {
+                                            id: <?= $flavor['flavor_id'] ?>, 
+                                            name: '<?= addslashes($flavor['name']) ?>', 
+                                            additional_price: <?= $flavor['additional_price'] ?>
+                                        }; updateTotalPrice()">
                                         <img src="<?= htmlspecialchars($flavor['image']) ?>"
                                             alt="<?= htmlspecialchars($flavor['name']) ?>"
                                             class="w-10 h-10 rounded-full mr-2">
-                                        <!-- Flavor Name -->
                                         <p class="text-sm font-semibold"><?= htmlspecialchars($flavor['name']) ?></p>
                                     </div>
                                     <?php endwhile; ?>
@@ -203,85 +250,24 @@ while ($addon = $addonResult->fetch_assoc()) {
                                 <?php else: ?>
                                 <p class="text-sm text-gray-500">No available flavors for this product.</p>
                                 <?php endif; ?>
+
+                                <!-- Display the total price -->
+                                <p class="mt-4 text-base font-semibold">Total Price: ₱<span
+                                        x-text="price.toFixed(2)"></span></p>
                             </div>
 
                         </div>
                         <button
-                            class=" bg-beige text-dark-brown font-bold px-4 py-4 rounded-tl-none rounded-tr-none rounded-bl-none rounded-br-none flex-shrink-0 hover:bg-green-700">
+                            class="bg-beige text-dark-brown font-bold px-4 py-4 rounded-tl-none rounded-tr-none rounded-bl-none rounded-br-none flex-shrink-0 hover:bg-green-700">
                             Add to Cart
                         </button>
                     </div>
+
+
                     <?php endwhile; ?>
                 </div>
-
-                <!-- Check if there are more than 6 products and display the "See More" link -->
-                <?php
-                // Check if the total number of products in the category is more than 6
-                $totalProductSql = "SELECT COUNT(*) AS total_products FROM products WHERE category_id = {$category['category_id']}";
-                $totalProductResult = $mysqli->query($totalProductSql);
-                $totalProduct = $totalProductResult->fetch_assoc();
-                if ($totalProduct['total_products'] > 6):
-                ?>
-                <!-- See More Link -->
-                <a href="/Kapelicious/frontend/pages/php/see-more-products.php?category_id=<?= $category['category_id'] ?>"
-                    class="text-blue-500 mt-4 inline-block">See More</a>
-                <?php endif; ?>
             </div>
             <?php endwhile; ?>
-        </section>
-    </div>
-
-    <!-- Popular Menus -->
-    <div class="menus-section bg-white py-20">
-        <section class="popular-menus max-w-7xl mx-auto px-4 lg:px-8">
-            <h3 class="text-3xl font-semibold text-dark-brown mb-8 text-center">Popular Menus</h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12">
-                <div class="menu-item bg-white rounded-lg">
-                    <img src="frontend/assets/Kapelicious-logo.png" alt="Coffee 1" class="w-full rounded-md mb-4">
-                    <h4 class="text-xl font-bold text-dark-brown">Caramel Latte</h4>
-                    <p class="text-gray-700">A perfect blend of caramel and espresso topped with creamy foam.</p>
-                </div>
-                <div class="menu-item bg-white rounded-lg ">
-                    <img src="frontend/assets/Kapelicious-logo.png" alt="Pastry 1" class="w-full rounded-md mb-4">
-                    <h4 class="text-xl font-bold text-dark-brown">Chocolate Croissant</h4>
-                    <p class="text-gray-700">Flaky, buttery pastry filled with rich chocolate.</p>
-                </div>
-                <div class="menu-item bg-white rounded-lg ">
-                    <img src="frontend/assets/Kapelicious-logo.png" alt="Coffee 2" class="w-full rounded-md mb-4">
-                    <h4 class="text-xl font-bold text-dark-brown">Espresso Macchiato</h4>
-                    <p class="text-gray-700">Strong espresso marked with a dollop of steamed milk.</p>
-                </div>
-            </div>
-        </section>
-    </div>
-
-    <!-- Services -->
-    <div class="services-section bg-white py-20">
-        <section class="services max-w-7xl mx-auto px-4 lg:px-8">
-            <h3 class="text-3xl font-semibold text-dark-brown mb-8 text-center">Our Coffee Services</h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12">
-                <div class="service-item bg-white rounded-lg p-6 flex items-center space-x-6">
-                    <div class="icon text-gray-700 text-4xl"><i class="fas fa-mug-hot"></i></div>
-                    <div>
-                        <h4 class="font-semibold text-dark-brown text-xl">Specialty Coffee</h4>
-                        <p class="text-gray-700">Rich and flavorful coffee crafted with love and care.</p>
-                    </div>
-                </div>
-                <div class="service-item bg-white rounded-lg p-6 flex items-center space-x-6">
-                    <div class="icon text-gray-700 text-4xl"><i class="fas fa-bread-slice"></i></div>
-                    <div>
-                        <h4 class="font-semibold text-dark-brown text-xl">Fresh Baked Pastries</h4>
-                        <p class="text-gray-700">Delicious treats baked fresh in-house every day.</p>
-                    </div>
-                </div>
-                <div class="service-item bg-white rounded-lg p-6 flex items-center space-x-6">
-                    <div class="icon text-gray-700 text-4xl"><i class="fas fa-coffee"></i></div>
-                    <div>
-                        <h4 class="font-semibold text-dark-brown text-xl">Coffee Blending</h4>
-                        <p class="text-gray-700">Customize your own coffee blend with our expert roasters.</p>
-                    </div>
-                </div>
-            </div>
         </section>
     </div>
 
